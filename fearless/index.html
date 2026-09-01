@@ -40,11 +40,13 @@
   ul.docs a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 1.05rem; }
   ul.docs a:hover { color: var(--accent); }
   ul.docs .meta { display: block; margin-top: 0.3rem; color: var(--muted); font-size: 0.9rem; }
+  table + h2 { margin-top: 2.5rem; }
   table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
   th, td { text-align: left; padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--border); }
   th { color: var(--muted); font-weight: 600; }
   code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.85em; }
   .hash { word-break: break-all; color: var(--muted); font-size: 0.78rem; display: block; margin-top: 0.35rem; }
+  p.note { color: var(--muted); font-size: 0.85rem; margin-top: 0.9rem; }
   ol.steps { color: var(--muted); font-size: 0.92rem; padding-left: 1.2rem; }
   footer { margin-top: 3rem; color: var(--muted); font-size: 0.85rem; }
   footer a { color: var(--accent); }
@@ -53,20 +55,42 @@
 <body>
 <main>
   <h1>Fearless downloads</h1>
-  <p class="lede">Self-contained Windows x64 builds of the Fearless toolchain, packaged straight from <code>FearlessLang</code> upstream <code>main</code>. No JDK needed â€” each zip carries its own trimmed Java 26 runtime.</p>
+  <p class="lede">Self-contained Windows x64 builds of the Fearless toolchain, packaged straight from <code>FearlessLang</code> upstream <code>main</code>. No JDK needed â€” each build carries its own trimmed Java 26 runtime. Take the examples zip too and you have something to run in the first minute.</p>
 
   <ul class="docs">
     <li>
       <a href="https://github.com/marcoautomation/shared-docs/releases/download/fearless-latest/fearless-portable-windows-x64.zip">Fearless portable &mdash; fearless-portable-windows-x64.zip</a>
       <span class="meta">The compiler/runner itself. Unzip and run <code>fearlessBin0_001.exe &lt;projectFolder&gt;</code>. 58.9&nbsp;MB zipped, 120&nbsp;MB unpacked.</span>
-      <span class="hash">SHA-256 c759df4dbe1f76cd7eb1a3f428de7602c63d706e8bda78a569edb73e89b9a0f3</span>
+      <span class="hash">SHA-256 9af5470d2fa80eb1ce3a4910fe4eecd38d1ad99fe7e7540b051b2cdf91f9eb4f</span>
     </li>
     <li>
       <a href="https://github.com/marcoautomation/shared-docs/releases/download/fearless-latest/fearless-manager-windows-x64.zip">Fearless manager &mdash; fearless-manager-windows-x64.zip</a>
       <span class="meta">The desktop manager GUI (project list, tray icon, launcher). Unzip and run <code>fearlessManaged0_001.exe</code>. 58.9&nbsp;MB zipped, 120&nbsp;MB unpacked.</span>
-      <span class="hash">SHA-256 d2e20f151650ecba77b494d2cf2e22f1f40e975c40657bfddba76a2bc7b36fea</span>
+      <span class="hash">SHA-256 df88522a6645f05c2788d57f7bc76feadeeb3c935ae7f6be3a71240bd0d069fe</span>
+    </li>
+    <li>
+      <a href="https://github.com/marcoautomation/shared-docs/releases/download/fearless-latest/fearless-examples.zip">Example projects &mdash; fearless-examples.zip</a>
+      <span class="meta">11 runnable Fearless projects in one folder, from hello-world to a playable game. Hand any one of them to the portable build as its argument. 2,947&nbsp;KB.</span>
+      <span class="hash">SHA-256 1f1d0df3790ac3ca3b4d33dda118ddbe02fc1412ac93a3116277bcd6a7e5979b</span>
     </li>
   </ul>
+
+  <h2>What is in the examples zip</h2>
+  <table>
+    <tr><th>Folder</th><th>In the manager</th><th></th></tr>
+      <tr><td><code>01_hello_world</code></td><td><code>hello_world</code></td><td>Several mains in one package: printing, lists, flows, and an error that unwinds with a stack trace.</td></tr>
+      <tr><td><code>02_mains_in_methods</code></td><td><code>mains_in_methods</code></td><td>What counts as a main &#226;€” a top-level one, one declared inside a method promising to capture nothing, and one that captures and so is never run.</td></tr>
+      <tr><td><code>03_many_packages</code></td><td><code>many_packages</code></td><td>Three packages wired together with &#39;map a as pkc in pkb&#39;, so a package names its dependency without hard-coding it.</td></tr>
+      <tr><td><code>04_stack_traces</code></td><td><code>stack_traces</code></td><td>A raised error, and the call stack Fearless prints for it with file and line for every frame.</td></tr>
+      <tr><td><code>05_doc_comments</code></td><td><code>doc_comments</code></td><td>&#39;///&#39; documentation comments on types and methods, including how an alias that shadows a base type still prints the real name.</td></tr>
+      <tr><td><code>06_unit_tests</code></td><td><code>unit_tests</code></td><td>The base.UnitTests facility exercising the standard library. Passing tests print nothing, so silence means green.</td></tr>
+      <tr><td><code>07_assets</code></td><td><code>assets</code></td><td>Files next to the code &#226;€” text, UTF-8, and a zip &#226;€” auto-loaded as ordinary types, with the read protocol under test.</td></tr>
+      <tr><td><code>08_caching</code></td><td><code>caching</code></td><td>Memoized (&#39;normed&#39;) computation: each cached body prints one Debug line, so the trace shows which calls actually recomputed.</td></tr>
+      <tr><td><code>09_gui_basics</code></td><td><code>gui_basics</code></td><td>base.Gui: a frame, labels, colors, slots, and keystroke handling.</td></tr>
+      <tr><td><code>10_gui_images</code></td><td><code>gui_images</code></td><td>Drawing images into a GUI frame and positioning them with X/Y coordinates.</td></tr>
+      <tr><td><code>11_basketball</code></td><td><code>basketball</code></td><td>A small playable game &#226;€” model, bounds, GUI and image assets in one project.</td></tr>
+  </table>
+  <p class="note">Each project carries its own <code>&lt;name&gt;.fearless</code> marker, so adding them all to the manager gives eleven distinctly named entries rather than eleven collisions.</p>
 
   <h2>This build</h2>
   <table>
@@ -81,8 +105,9 @@
 
   <h2>Running it</h2>
   <ol class="steps">
+    <li>First run of any project compiles it and takes a few seconds; it leaves a <code>.fearless_out</code> cache next to the sources and later runs are quick.</li>
     <li>Unzip anywhere â€” the app is relocatable and writes nothing outside its own folder plus the usual per-user data dir.</li>
-    <li>The portable build wants a project folder as its argument; started with no argument it sits on the welcome window.</li>
+    <li>The portable build wants a <em>project folder</em> as its argument; started with no argument it sits on the welcome window. Unzip the examples next to it and point at one, e.g. <code>fearlessBin0_001.exe fearless-examples_hello_world</code>.</li>
     <li>Windows SmartScreen will warn on first run: the executables are unsigned.</li>
   </ol>
 
