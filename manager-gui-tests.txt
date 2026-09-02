@@ -1,8 +1,14 @@
-FEARLESS MANAGER - GUI TEST PLAN (draft v4)
+FEARLESS MANAGER - GUI TEST PLAN (draft v5)
 
-Preconditions (before Test 1, and before any test marked "reset"):
-fearlessManaged0_001w.exe not running; manager data folder (fearless0_001)
-deleted; 01_hello_world/.fearless_out deleted; nothing owns .fearless.
+Each test is independent: its Setup line alone reaches its starting
+state, regardless of which other tests ran.
+
+FIXTURES
+clean = fearlessManaged0_001w.exe not running; manager data folder
+  fearless0_001 deleted; 01_hello_world/.fearless_out deleted;
+  nothing owns .fearless.
+open(P) = clean; run manager; add folder P; click its tile.
+compiled(P) = open(P); click Compile; wait for compile done.
 
 Projects: 01_hello_world -> hello_world. Mains Hello1,Hello3,Hello4,
 Hello5,Hello6; Hello6 errors on purpose (output has AAAAh), exits
@@ -10,52 +16,83 @@ non-zero; rest exit 0.
 02_mains_in_methods -> mains_in_methods.
 09_gui_basics -> gui_basics; its main never exits on its own.
 
-Tests continue from the previous one unless marked "reset".
-
 TEST 1 File association
-1. Open Explorer on 01_hello_world -> hello_world.fearless has a generic icon.
-2. Run fearlessManaged0_001w.exe -> Manager opens.
-3. Refresh Explorer (F5) -> Fearless icon shown.
-4. Forget association -> Yes -> Manager closes.
-5. Refresh Explorer -> generic icon again.
-6. Run fearlessManaged0_001w.exe -> Manager opens.
-7. Refresh Explorer -> Fearless icon shown.
+Setup: clean.
+1. Do: open Explorer on 01_hello_world.
+   Check: hello_world.fearless has a generic icon.
+2. Do: run fearlessManaged0_001w.exe.
+   Check: Manager window opens.
+3. Check: same Explorer window, no action taken -> hello_world.fearless now shows the Fearless icon.
+4. Do: Forget association, then Yes.
+   Check: Manager window closes.
+5. Check: hello_world.fearless shows a generic icon again.
+6. Do: run fearlessManaged0_001w.exe.
+   Check: Manager window opens.
+7. Check: hello_world.fearless shows the Fearless icon again.
 
 TEST 2 Split view and divider
-1. Add folder 01_hello_world -> hello_world tile, "needs compiling".
-2. Click hello_world tile -> splits: icon grid left, project panel right, divider between.
-3. Drag divider left/right -> panes resize live.
-4. Drag divider to right edge -> only icon grid visible, still clickable.
+Setup: clean; run manager.
+1. Do: add folder 01_hello_world.
+   Check: hello_world tile appears, "needs compiling".
+2. Do: click hello_world tile.
+   Check: window splits, icon grid left / project panel right, divider between.
+3. Do: drag divider left, then right.
+   Check: panes resize live.
+4. Do: drag divider to right edge.
+   Check: only icon grid visible, still clickable.
 
 TEST 3 Compile and run
-1. Click Compile -> Output "--- compiling hello_world ---" ... "--- compile done ---"; mains list shows Hello1,Hello3,Hello4,Hello5,Hello6.
-2. Click All -> all 5 checked.
-3. Click Run selected -> per main: "--- running <name> ---", its output, "--- <name> exited with <code> after <N>s ---". Hello1/3/4/5 exit 0; Hello6 exits non-zero.
-4. Scroll output top to bottom -> all 5 run blocks present, none cut off.
-5. Judge: did default window/output size show all this without manual resizing? If not, note as defect.
+Setup: open(01_hello_world).
+1. Do: click Compile.
+   Check: Output "--- compiling hello_world ---" ... "--- compile done ---"; mains list shows Hello1,Hello3,Hello4,Hello5,Hello6.
+2. Do: click All.
+   Check: all 5 checked.
+3. Do: click Run selected.
+   Check: per main, "--- running <name> ---", its output, "--- <name> exited with <code> after <N>s ---"; Hello1/3/4/5 exit 0, Hello6 exits non-zero.
+4. Check: scroll output top to bottom -> all 5 run blocks present, none cut off.
+5. Check (judgment call): did the default window/output size show all this without manual resizing? If not: defect.
 
 TEST 4 Second project
-1. Add folder 02_mains_in_methods -> mains_in_methods tile appears.
-2. Click mains_in_methods tile -> panel switches.
-3. Click hello_world tile -> panel switches back, output log unchanged.
-4. Open Running menu -> "<nothing running>".
+Setup: compiled(01_hello_world).
+1. Do: add folder 02_mains_in_methods.
+   Check: mains_in_methods tile appears.
+2. Do: click mains_in_methods tile.
+   Check: panel switches.
+3. Do: click hello_world tile.
+   Check: panel switches back, output log unchanged.
+4. Do: open Running menu.
+   Check: shows "<nothing running>".
 
 TEST 5 Running program and Terminate
-1. Add folder 09_gui_basics; select it, Compile, check its main, Run selected -> separate window opens; Terminate enabled.
-2. Open Running menu -> "gui_basics - <main>".
-3. Click that entry -> gui_basics panel opens.
-4. Click Terminate -> Output "--- terminating <main> ---", exited line; Running menu -> "<nothing running>".
+Setup: clean; run manager; add folder 09_gui_basics; select it, Compile, check its main, Run selected.
+1. Check: separate window opens; Terminate enabled.
+2. Do: open Running menu.
+   Check: shows "gui_basics - <main>".
+3. Do: click that entry.
+   Check: gui_basics panel opens.
+4. Do: click Terminate.
+   Check: Output "--- terminating <main> ---", exited line; Running menu -> "<nothing running>".
 
 TEST 6 Window close vs Quit
-1. Click window X -> window disappears, tray icon remains.
-2. Double-click tray icon -> window reappears, state intact.
-3. Quit manager -> window closes, process exits, tray icon gone.
+Setup: compiled(01_hello_world).
+1. Do: click window X.
+   Check: window disappears, tray icon remains.
+2. Do: double-click tray icon.
+   Check: window reappears, state intact.
+3. Do: Quit manager.
+   Check: window closes, process exits, tray icon gone.
 
-TEST 7 Nested folder rejected (reset; register hello_world)
-1. Add folder: subfolder inside 01_hello_world (e.g. _hello) -> no tile added; warning dialog names both folders.
-2. Dismiss -> icon grid unchanged.
+TEST 7 Nested folder rejected
+Setup: open(01_hello_world).
+1. Do: add folder: a subfolder inside 01_hello_world (e.g. _hello).
+   Check: no tile added; warning dialog names both folders.
+2. Do: dismiss dialog.
+   Check: icon grid unchanged.
 
-TEST 8 Clear cache and Forget project (reset; register+compile 02_mains_in_methods)
-1. Select mains_in_methods, Clear cache -> "Compiled cache" = "needs compiling"; mains list = "<needs compiling>".
-2. Forget project -> tile disappears, panel closes.
-3. Check 02_mains_in_methods on disk -> nothing deleted.
+TEST 8 Clear cache and Forget project
+Setup: compiled(02_mains_in_methods).
+1. Do: select mains_in_methods, Clear cache.
+   Check: "Compiled cache" = "needs compiling"; mains list = "<needs compiling>".
+2. Do: Forget project.
+   Check: tile disappears, panel closes.
+3. Check: 02_mains_in_methods on disk is unchanged.
