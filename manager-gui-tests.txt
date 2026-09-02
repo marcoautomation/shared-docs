@@ -1,9 +1,7 @@
-FEARLESS MANAGER - GUI TEST PLAN (draft v2)
+FEARLESS MANAGER - GUI TEST PLAN (draft v3)
 
-Use fearlessManaged0_001w.exe (windowed launcher, no console window).
-
-PRECONDITIONS (apply before Test 1, and before any test that is not
-listed as continuing from the one before it):
+PRECONDITIONS (before Test 1, and before any test not marked as
+continuing from the one before it):
 - fearlessManaged0_001w.exe is not running.
 - The manager data folder (fearless0_001, next to the app folder) is
   deleted.
