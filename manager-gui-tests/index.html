@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fearless Manager — GUI test plan</title>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --surface: #ffffff;
+    --text: #1c1a17;
+    --muted: #6b6459;
+    --accent: #a8531e;
+    --border: #e6e1d8;
+    --ok: #3d7a3d;
+    --warn: #a8531e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17140f;
+      --surface: #201c16;
+      --text: #f1ede4;
+      --muted: #a89f8f;
+      --accent: #e08a4f;
+      --border: #332d23;
+      --ok: #7fbf7f;
+      --warn: #e08a4f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 4rem 1.5rem 6rem; }
+  h1 { font-size: 1.8rem; margin: 0 0 0.4rem; letter-spacing: -0.01em; }
+  p.lede { color: var(--muted); margin: 0 0 2rem; max-width: 66ch; }
+  h2 { font-size: 1.25rem; margin: 3rem 0 0.9rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+  h3 {
+    font-size: 1.05rem; margin: 0 0 0; padding: 0.9rem 1.1rem;
+    background: var(--surface); border: 1px solid var(--border); border-bottom: none;
+    border-radius: 10px 10px 0 0; display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap;
+  }
+  h3 .id { color: var(--accent); font-weight: 700; }
+  h3 .status {
+    margin-left: auto; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+    color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.6rem;
+  }
+  .case { margin-bottom: 1.6rem; }
+  .pre {
+    background: var(--surface); border: 1px solid var(--border); border-top: none;
+    padding: 0.7rem 1.1rem; font-size: 0.9rem; color: var(--muted);
+  }
+  .pre b { color: var(--text); font-weight: 600; }
+  table.steps {
+    width: 100%; border-collapse: collapse; font-size: 0.92rem;
+    background: var(--surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 10px 10px; overflow: hidden;
+  }
+  table.steps th, table.steps td { text-align: left; padding: 0.55rem 0.9rem; border-top: 1px solid var(--border); vertical-align: top; }
+  table.steps th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  table.steps td.n { color: var(--muted); width: 1.6rem; }
+  table.steps td.action { width: 40%; }
+  .note {
+    margin: 0; padding: 0.6rem 1.1rem; background: var(--surface); border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 10px 10px; font-size: 0.86rem; color: var(--muted);
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.87em; }
+  kbd {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.85em;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 0.05rem 0.35rem;
+  }
+  ul, ol { padding-left: 1.3rem; }
+  ul.fixture li, ol.fixture li { margin-bottom: 0.4rem; }
+  .legend { display: flex; gap: 1.5rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); margin: 0 0 1.5rem; }
+  .legend b { color: var(--text); }
+  footer { margin-top: 3.5rem; color: var(--muted); font-size: 0.85rem; }
+  footer a { color: var(--accent); }
+  .mains { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.85em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Fearless Manager — GUI test plan</h1>
+  <p class="lede">
+    Scripted acceptance tests for the desktop manager (<code>manager.ManagerMain</code>, the
+    <code>fearlessManaged</code> app-image): concrete mouse/keyboard steps and the exact result
+    expected after each one, written so they can be run by a person today and by a Claude agent
+    driving the real GUI later — screenshot, click, screenshot, compare. Read the note on
+    terminology below if the vocabulary here is unfamiliar.
+  </p>
+
+  <div class="legend">
+    <span><b>Status: draft</b> — written from reading the source, not yet executed against a running manager.</span>
+    <span><b>Status: verified</b> — executed at least once, actual result matched expected.</span>
+    <span><b>Status: failing</b> — executed, actual result diverged; see its note.</span>
+  </div>
+
+  <h2>What this document is</h2>
+  <p>
+    In software engineering, a scripted sequence of user actions paired with the result each one
+    should produce is a <b>test case</b> (or <b>test script</b>), and a collection of them aimed at
+    one release is a <b>test plan</b> — the practice historically called manual
+    <b>acceptance testing</b> or <b>UAT</b>. Writing each step as "do X → expect Y" is the same shape
+    as <b>Given/When/Then</b> (Gherkin/BDD) scenarios. What is new is who runs them: instead of a
+    person clicking through the app before a release, an agent drives the real, on-screen GUI —
+    launching the process, sending mouse and keyboard events, taking screenshots, and comparing them
+    against the expected results below. That is standard <b>GUI test automation</b> / <b>end-to-end
+    (E2E) testing</b>; for a Swing app specifically the well-known tooling is AssertJ-Swing (formerly
+    FEST-Swing), though driving the OS-level screen and input queue works too and matches how a human
+    tester would actually see it.
+  </p>
+  <p>
+    Every test case below is deliberately concrete about paths, labels and exact strings taken from
+    the current source, so that "did it pass" is a fact, not a judgment call. Where the source didn't
+    settle a detail (mainly: is the default window big enough), the test says so explicitly and asks
+    for a judgment call rather than inventing a number.
+  </p>
+
+  <h2>Fixtures</h2>
+  <ul class="fixture">
+    <li><b>Manager build.</b> Unzip <code>fearless-manager-windows-x64.zip</code> anywhere; the app-image
+      folder is named <code>fearlessManaged&lt;version&gt;</code> (currently <code>0_001</code>), and the
+      executable inside it is <code>fearlessManaged&lt;version&gt;.exe</code>.</li>
+    <li><b>Manager data folder.</b> The manager keeps its state — <code>registered.txt</code> (the
+      registered project list), <code>instance.lock</code>, and the <code>messages\</code> drop folder —
+      in a sibling folder named <code>fearless&lt;version&gt;</code>, next to wherever
+      <code>fearlessManaged&lt;version&gt;</code> was unzipped. This is "the manager folder" referred to
+      throughout.</li>
+    <li><b>hello_world project.</b> From <code>fearless-examples.zip</code>, folder <code>01_hello_world</code>,
+      marker file <code>hello_world.fearless</code> (registers in the manager under the name
+      <code>hello_world</code>). It compiles to exactly five runnable mains, alphabetically:
+      <span class="mains">Hello1, Hello3, Hello4, Hello5, Hello6</span>. Hello1 prints a literal string;
+      Hello3/Hello4 print lists; Hello5 prints a mapped/flowed list; Hello6 deliberately raises an error
+      (<code>Error.msg`AAAAh`</code>) and should exit non-zero with a stack trace ending in
+      <code>AAAAh</code>.</li>
+    <li><b>A second, disposable console project</b> for tests that need two registered projects — the
+      examples zip's <code>02_mains_in_methods</code> (registers as <code>mains_in_methods</code>) works
+      and compiles quickly.</li>
+    <li><b>A GUI-kind project that never exits on its own</b>, for the "something is running" tests —
+      e.g. <code>09_gui_basics</code> (registers as <code>gui_basics</code>).</li>
+  </ul>
+
+  <h2>Clean start (run before Test 1, and whenever a test says "from a clean start")</h2>
+  <ol class="fixture">
+    <li>If <code>fearlessManaged&lt;version&gt;.exe</code> is running, quit it: Manager menu →
+      <em>Quit manager</em> (not just closing the window — see Test 6 for why that distinction
+      matters).</li>
+    <li>Delete the manager data folder (<code>fearless&lt;version&gt;</code>, see Fixtures above).</li>
+    <li>Delete hello_world's <code>.fearless_out</code> cache folder, next to
+      <code>hello_world.fearless</code>.</li>
+    <li>Only for Test 1: make sure no Fearless build currently owns the <code>.fearless</code>
+      extension — if a previous run associated it, run Test 1's steps 4–5 once first (or forget the
+      association by hand in Windows' "Default apps" settings) so Test 1 exercises a genuine first-time
+      registration rather than a no-op.</li>
+  </ol>
+
+  <h2>Tests</h2>
+
+  <div class="case">
+    <h3><span class="id">Test 1</span> First-run file association, and forgetting it <span class="status">draft</span></h3>
+    <div class="pre"><b>Preconditions:</b> clean start done; nothing owns the <code>.fearless</code> extension yet.</div>
+    <table class="steps">
+      <tr><th class="n">#</th><th class="action">Action</th><th>Expected result</th></tr>
+      <tr><td class="n">1</td><td>Open a Windows Explorer window on the <code>01_hello_world</code> folder, so <code>hello_world.fearless</code> is visible.</td><td>The file shows Explorer's generic/unregistered file icon — nothing Fearless-specific yet.</td></tr>
+      <tr><td class="n">2</td><td>Double-click <code>fearlessManaged0_001.exe</code> (no arguments).</td><td>The Manager window opens. No dialog appears about the association — claiming <code>.fearless</code> is silent and automatic on this first run (only <em>forgetting</em> it, step 4, asks for confirmation).</td></tr>
+      <tr><td class="n">3</td><td>Switch back to the Explorer window from step 1. Press <kbd>F5</kbd> if it hasn't updated within a few seconds.</td><td><code>hello_world.fearless</code> now shows the Fearless icon.</td></tr>
+      <tr><td class="n">4</td><td>In the Manager, open <em>Manager → Forget association</em>. A Yes/No dialog appears asking to remove Fearless as the registered opener for Fearless projects. Click <b>Yes</b>.</td><td>The dialog closes, and — this is a real side effect, confirm it deliberately — <b>the Manager window closes too</b>: forgetting the association quits the whole manager process.</td></tr>
+      <tr><td class="n">5</td><td>Switch back to Explorer, <kbd>F5</kbd> if needed.</td><td><code>hello_world.fearless</code> has lost the Fearless icon, back to the generic one.</td></tr>
+      <tr><td class="n">6</td><td>Double-click <code>fearlessManaged0_001.exe</code> again.</td><td>The Manager window opens again, with the project list exactly as the manager data folder still records it (association isn't the same thing as the registered-project list).</td></tr>
+      <tr><td class="n">7</td><td>Switch back to Explorer, <kbd>F5</kbd> if needed.</td><td><code>hello_world.fearless</code> shows the Fearless icon again.</td></tr>
+    </table>
+  </div>
+
+  <div class="case">
+    <h3><span class="id">Test 2</span> Project panel split view, and the collapsible divider <span class="status">draft</span></h3>
+    <div class="pre"><b>Preconditions:</b> Manager open, nothing registered yet (fresh from Test 1, or a clean start).</div>
+    <table class="steps">
+      <tr><th class="n">#</th><th class="action">Action</th><th>Expected result</th></tr>
+      <tr><td class="n">1</td><td>With the Manager window open and empty, observe the layout.</td><td>Only the "Registered project folders" icon grid is visible, filling the window — no project panel, no divider.</td></tr>
+      <tr><td class="n">2</td><td><em>Project → Add folder...</em>, browse to and select <code>01_hello_world</code>, click Open.</td><td>A <code>hello_world</code> tile appears in the icon grid, badged "needs compiling" (no cache yet, per the clean start).</td></tr>
+      <tr><td class="n">3</td><td>Click the <code>hello_world</code> tile.</td><td>The window splits: the icon grid moves to a narrower left pane, and a right pane appears showing hello_world's header, an "Information" panel, a "Mains to run" panel, tool buttons, and an empty Output area — with a visible vertical divider between the two panes.</td></tr>
+      <tr><td class="n">4</td><td>Press the mouse down on the divider and drag it left, then right.</td><td>The split moves live with the mouse: dragging left widens the right (project) pane, dragging right widens the left (icon) pane. Release re-anchors it at the new position.</td></tr>
+      <tr><td class="n">5</td><td>Drag the divider close enough to the window's right edge that the right pane is left with (near) no width.</td><td>The window effectively shows only the icon grid; the project pane is squeezed to a sliver. The icon grid stays fully usable at this width — e.g. clicking the hello_world tile still works.</td></tr>
+    </table>
+  </div>
+
+  <div class="case">
+    <h3><span class="id">Test 3</span> Compile and run all mains; output completeness <span class="status">draft</span></h3>
+    <div class="pre"><b>Preconditions:</b> hello_world registered (Test 2), its <code>.fearless_out</code> cache deleted, its panel open.</div>
+    <table class="steps">
+      <tr><th class="n">#</th><th class="action">Action</th><th>Expected result</th></tr>
+      <tr><td class="n">1</td><td>Click <b>Compile</b>.</td><td>Output immediately shows <code>--- compiling hello_world ---</code>; Compile/Run selected are disabled while busy. On completion: <code>--- compile done ---</code>, the "Mains to run" list fills with 5 checkboxes — <span class="mains">Hello1, Hello3, Hello4, Hello5, Hello6</span> — and the Information panel's "Compiled cache" line reads "up to date" with a real "Last compile" timestamp.</td></tr>
+      <tr><td class="n">2</td><td>Click the small <b>All</b> button above the mains list.</td><td>All 5 checkboxes become checked.</td></tr>
+      <tr><td class="n">3</td><td>Click <b>Run selected</b>.</td><td>For each of the 5 mains, in order: Output appends <code>--- running &lt;name&gt; ---</code>, then that main's own printed output, then <code>--- &lt;name&gt; exited with &lt;code&gt; after &lt;N&gt;s ---</code>. Hello1/3/4/5 exit 0; Hello6 prints an error and stack trace containing <code>AAAAh</code> before exiting non-zero.</td></tr>
+      <tr><td class="n">4</td><td>Once all 5 have run, read the Output area top to bottom (scroll to the very top, then to the very bottom).</td><td>All 5 run blocks are present in full — nothing silently truncated or missing — whether that requires scrolling or not.</td></tr>
+      <tr><td class="n">5</td><td><i>Design check, not just an execution check:</i> judge whether the default window (760×620) and Output area (a 10-row <code>JTextArea</code>) comfortably show this entire 5-main run without the user having to resize anything by hand.</td><td>If it does not, record that as a finding against <code>FolderInfo</code>/<code>ManagerGui</code>'s defaults — candidate fixes: a taller default Output area, remembering the user's last window size, or a one-click "maximize output" toggle. Don't silently accept scrolling as good enough for a first impression.</td></tr>
+    </table>
+  </div>
+
+  <div class="case">
+    <h3><span class="id">Test 4</span> A second project, and switching between them <span class="status">draft</span></h3>
+    <div class="pre"><b>Preconditions:</b> hello_world registered and compiled (Test 3).</div>
+    <table class="steps">
+      <tr><th class="n">#</th><th class="action">Action</th><th>Expected result</th></tr>
+      <tr><td class="n">1</td><td><em>Project → Add folder...</em>, select <code>02_mains_in_methods</code>.</td><td>A second tile, <code>mains_in_methods</code>, appears alongside <code>hello_world</code>; badges are independent — hello_world "up to date" (green-ish), mains_in_methods "needs compiling".</td></tr>
+      <tr><td class="n">2</td><td>Click the <code>mains_in_methods</code> tile.</td><td>The right pane switches to mains_in_methods' own header/info/mains/output.</td></tr>
+      <tr><td class="n">3</td><td>Click back on the <code>hello_world</code> tile.</td><td>The pane switches back; hello_world's Output area still shows the full run log from Test 3 — each project's session state persists independently while the manager stays open.</td></tr>
+      <tr><td class="n">4</td><td>Open the <b>Running</b> menu.</td><td>Since nothing is currently executing, it shows one disabled entry: <code>&lt;nothing running&gt;</code>.</td></tr>
+    </table>
+  </div>
+
+  <div class="case">
+    <h3><span class="id">Test 5</span> A running program shows in the Running menu, and Terminate stops it <span class="status">draft</span></h3>
+    <div class="pre"><b>Preconditions:</b> <code>gui_basics</code> (09_gui_basics) registered.</div>
+    <table class="steps">
+      <tr><th class="n">#</th><th class="action">Action</th><th>Expected result</th></tr>
+      <tr><td class="n">1</td><td>Select the <code>gui_basics</code> tile, click Compile, check its one main, click Run selected.</td><td>Output shows <code>--- running &lt;main&gt; ---</code>; since this program never exits on its own, Compile/Run selected stay disabled (busy) and Terminate becomes enabled; a separate small window belonging to the running Fearless program appears on screen.</td></tr>
+      <tr><td class="n">2</td><td>Open the <b>Running</b> menu.</td><td>It now lists one live entry, formatted <code>gui_basics - &lt;main name&gt;</code>.</td></tr>
+      <tr><td class="n">3</td><td>Click that Running-menu entry.</td><td>The manager selects/opens the gui_basics tile and panel — same effect as clicking the tile directly, confirming the menu is a shortcut to whatever is live.</td></tr>
+      <tr><td class="n">4</td><td>Click <b>Terminate</b>.</td><td>Output appends <code>--- terminating &lt;main&gt; ---</code>, the child window closes, a final <code>--- &lt;main&gt; exited with &lt;code&gt; ... ---</code> line appears, the Running menu returns to <code>&lt;nothing running&gt;</code>, and Compile/Run selected re-enable.</td></tr>
+    </table>
+  </div>
+
+  <div class="case">
+    <h3><span class="id">Test 6</span> Closing the window (X) hides to the tray; Quit actually exits <span class="status">draft</span></h3>
+    <div class="pre"><b>Preconditions:</b> Manager open, at least one project registered. Desktop has a system tray.</div>
+    <table class="steps">
+      <tr><th class="n">#</th><th class="action">Action</th><th>Expected result</th></tr>
+      <tr><td class="n">1</td><td>Click the window's native close button (X) in the title bar.</td><td>The Manager window disappears, but the process is still running — a Fearless tray icon remains in the system tray.</td></tr>
+      <tr><td class="n">2</td><td>Double-click the tray icon (or right-click it → "Show manager").</td><td>The Manager window reappears, restored (not minimized), in front, with every registered project and its state exactly as it was.</td></tr>
+      <tr><td class="n">3</td><td>Open <em>Manager → Quit manager</em> (or the tray icon's own "Quit manager").</td><td>The window closes <b>and</b> the process actually exits — the tray icon disappears too, and nothing can be brought back short of relaunching the exe.</td></tr>
+    </table>
+  </div>
+
+  <div class="case">
+    <h3><span class="id">Test 7</span> Registering a folder nested inside an already-registered one is rejected <span class="status">draft</span></h3>
+    <div class="pre"><b>Preconditions:</b> hello_world already registered.</div>
+    <table class="steps">
+      <tr><th class="n">#</th><th class="action">Action</th><th>Expected result</th></tr>
+      <tr><td class="n">1</td><td><em>Project → Add folder...</em>, navigate <em>inside</em> the already-registered <code>01_hello_world</code> folder (e.g. select its <code>_hello</code> subfolder) and confirm.</td><td>No new tile is added. A warning dialog appears explaining that the folder can't be tracked because it's nested with an already-registered project, and names both folders.</td></tr>
+      <tr><td class="n">2</td><td>Dismiss the dialog.</td><td>The icon grid is unchanged from before step 1 — nothing extra was added.</td></tr>
+    </table>
+  </div>
+
+  <div class="case">
+    <h3><span class="id">Test 8</span> Clear cache forces a recompile; Forget project removes only the manager's tracking <span class="status">draft</span></h3>
+    <div class="pre"><b>Preconditions:</b> <code>mains_in_methods</code> registered and already compiled (e.g. continuing from Test 4 after compiling it once).</div>
+    <table class="steps">
+      <tr><th class="n">#</th><th class="action">Action</th><th>Expected result</th></tr>
+      <tr><td class="n">1</td><td>With <code>mains_in_methods</code> selected, <em>Project → Clear cache</em>.</td><td>The Information panel's "Compiled cache" line flips from "up to date" to "needs compiling", and "Mains to run" reverts to <code>&lt;needs compiling&gt;</code> until Compile is pressed again. (This action doesn't print anything to Output.)</td></tr>
+      <tr><td class="n">2</td><td><em>Project → Forget project</em>.</td><td>The <code>mains_in_methods</code> tile disappears from the icon grid entirely, and the window falls back to the icon-grid-only view (same as before any tile was ever selected).</td></tr>
+      <tr><td class="n">3</td><td>Check the <code>02_mains_in_methods</code> folder on disk.</td><td>The project folder and its marker file are untouched — <em>Forget project</em> only removes it from the manager's own <code>registered.txt</code>, it deletes nothing on disk.</td></tr>
+    </table>
+  </div>
+
+  <h2>Open questions for review</h2>
+  <ul class="fixture">
+    <li>Test 3 step 5 is the one place this document asks for a judgment call instead of a fact — is the current default Output size actually a problem in practice, or is scrolling fine for a first impression?</li>
+    <li>Should "clean start" be re-run before <em>every</em> test, or is chaining state forward across tests (as most of these do) acceptable, given a manager-restart step appears explicitly wherever it matters (Tests 1, 6)?</li>
+    <li>Anything from the current manager code this plan doesn't cover yet that should be in scope: sort order in the icon grid (Name/Modified/Compiled/Run), the elapsed-time status line at the bottom of the window, "Browse files", "Error report" for an invalid project, the rename-collision prompt when two folders would share a compact name?</li>
+  </ul>
+
+  <footer>
+    Draft v1, written 2026-09-02 from <code>Coordinator/src/manager</code>,
+    <code>managerInfo</code>, <code>managerList</code> and <code>managerRun</code> as they stand on
+    <code>FearlessLang</code> upstream <code>main</code> — not yet executed against a running build.
+    See the <a href="../fearless/">Fearless downloads</a> page for the manager build and examples
+    used above. Maintained by the Claude agent on marcoautomation.
+  </footer>
+</main>
+</body>
+</html>
