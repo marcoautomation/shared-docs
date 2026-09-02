@@ -1,356 +1,119 @@
-FEARLESS MANAGER - GUI TEST PLAN
-Draft v1, 2026-09-02
-Written from Coordinator/src/manager, managerInfo, managerList and managerRun
-as they stand on FearlessLang upstream main. Not yet executed against a
-running build.
+FEARLESS MANAGER - GUI TEST PLAN (draft v2)
 
-====================================================================
-WHAT THIS DOCUMENT IS
-====================================================================
-A scripted sequence of user actions paired with the result each one should
-produce is called a "test case" (or "test script"); a collection of them
-aimed at one release is a "test plan". This is the classic manual-QA
-practice of acceptance testing / UAT. Writing each step as "do X -> expect
-Y" is the same shape as Given/When/Then (Gherkin/BDD) scenarios.
+Use fearlessManaged0_001w.exe (windowed launcher, no console window).
 
-What's new is who runs them: instead of a person clicking through the app
-before a release, an agent can drive the real, on-screen GUI directly -
-launch the process, send mouse and keyboard events, take screenshots,
-compare them against the expected results below. That's ordinary GUI test
-automation / end-to-end (E2E) testing; for a Swing app specifically the
-well-known library is AssertJ-Swing (formerly FEST-Swing), though driving
-the OS-level screen and input queue works too and matches what a human
-tester would actually see.
+PRECONDITIONS (apply before Test 1, and before any test that is not
+listed as continuing from the one before it):
+- fearlessManaged0_001w.exe is not running.
+- The manager data folder (fearless0_001, next to the app folder) is
+  deleted.
+- 01_hello_world/.fearless_out is deleted.
+- Nothing owns the .fearless extension yet.
 
-Every test case below is deliberately concrete about paths, labels and
-exact strings taken from the current source, so "did it pass" is a fact,
-not a judgment call. Where the source doesn't settle a detail (mainly:
-is the default window big enough), the test says so and asks for a
-judgment call instead of inventing a number.
+Projects used below:
+- 01_hello_world, marker hello_world.fearless, registers as hello_world.
+  Mains: Hello1, Hello3, Hello4, Hello5, Hello6. Hello6 errors on
+  purpose (its output contains AAAAh) and exits non-zero; the rest
+  exit 0.
+- 02_mains_in_methods, registers as mains_in_methods.
+- 09_gui_basics, registers as gui_basics. Its main never exits on its
+  own.
 
-Edit this file directly - it's plain text on purpose.
+TEST 1 - File association
+1. Open Explorer on 01_hello_world.
+   hello_world.fearless shows a generic icon.
+2. Run fearlessManaged0_001w.exe.
+   Manager window opens.
+3. Refresh Explorer (F5).
+   hello_world.fearless now shows the Fearless icon.
+4. Manager menu -> Forget association -> Yes.
+   Manager window closes.
+5. Refresh Explorer.
+   hello_world.fearless shows a generic icon again.
+6. Run fearlessManaged0_001w.exe.
+   Manager window opens.
+7. Refresh Explorer.
+   hello_world.fearless shows the Fearless icon again.
 
-====================================================================
-FIXTURES
-====================================================================
-Manager build
-  Unzip fearless-manager-windows-x64.zip anywhere. The app-image folder is
-  named fearlessManaged<version> (currently 0_001); the executable inside
-  it is fearlessManaged<version>.exe.
+TEST 2 - Split view and divider
+(continues from Test 1)
+1. Project menu -> Add folder... -> select 01_hello_world.
+   A hello_world tile appears, badged "needs compiling".
+2. Click the hello_world tile.
+   Window splits: icon grid on the left, project panel on the right,
+   divider between them.
+3. Drag the divider left, then right.
+   Both panes resize live with the mouse.
+4. Drag the divider to the right edge of the window.
+   Only the icon grid is visible; it is still clickable.
 
-Manager data folder
-  The manager keeps its state - registered.txt (the registered project
-  list), instance.lock, and the messages\ drop folder - in a sibling
-  folder named fearless<version>, next to wherever fearlessManaged<version>
-  was unzipped. This is "the manager folder" referred to below.
+TEST 3 - Compile and run
+(continues from Test 2)
+1. Click Compile.
+   Output shows "--- compiling hello_world ---", then
+   "--- compile done ---". Mains list shows Hello1, Hello3, Hello4,
+   Hello5, Hello6.
+2. Click the All button.
+   All 5 checkboxes are checked.
+3. Click Run selected.
+   For each main, in order: "--- running <name> ---", its own output,
+   "--- <name> exited with <code> after <N>s ---". Hello1/3/4/5 exit 0.
+   Hello6's output contains AAAAh and it exits non-zero.
+4. Scroll the output area from top to bottom.
+   All 5 run blocks are present, none cut off.
+5. Judge whether the default window and output size showed all of the
+   above without manual resizing.
+   If not, note it as a defect to fix.
 
-hello_world project
-  From fearless-examples.zip, folder 01_hello_world, marker file
-  hello_world.fearless (registers in the manager under the name
-  hello_world). It compiles to exactly five runnable mains, alphabetically:
-    Hello1, Hello3, Hello4, Hello5, Hello6
-  Hello1 prints a literal string; Hello3/Hello4 print lists; Hello5 prints
-  a mapped/flowed list; Hello6 deliberately raises an error
-  (Error.msg`AAAAh`) and should exit non-zero with a stack trace ending in
-  AAAAh.
+TEST 4 - Second project
+(continues from Test 3)
+1. Project menu -> Add folder... -> select 02_mains_in_methods.
+   A mains_in_methods tile appears.
+2. Click the mains_in_methods tile.
+   Panel switches to mains_in_methods.
+3. Click the hello_world tile.
+   Panel switches back; hello_world's output log is unchanged.
+4. Open the Running menu.
+   Shows "<nothing running>".
 
-Second, disposable console project
-  For tests that need two registered projects - the examples zip's
-  02_mains_in_methods (registers as mains_in_methods) works and compiles
-  quickly.
+TEST 5 - Running program and Terminate
+(continues from Test 4)
+1. Project menu -> Add folder... -> select 09_gui_basics. Select it,
+   Compile, check its main, click Run selected.
+   A separate window opens; Terminate becomes enabled.
+2. Open the Running menu.
+   Shows "gui_basics - <main name>".
+3. Click that entry.
+   gui_basics panel opens.
+4. Click Terminate.
+   Output shows "--- terminating <main> ---" then an exited line.
+   Running menu returns to "<nothing running>".
 
-A GUI-kind project that never exits on its own
-  For the "something is running" tests - e.g. 09_gui_basics (registers as
-  gui_basics).
+TEST 6 - Window close vs Quit
+(continues from Test 5)
+1. Click the window's X (title bar close button).
+   Window disappears; a tray icon remains.
+2. Double-click the tray icon.
+   Window reappears, state intact.
+3. Manager menu -> Quit manager.
+   Window closes and the process exits; tray icon disappears.
 
-====================================================================
-CLEAN START
-(run before Test 1, and whenever a test below says "from a clean start")
-====================================================================
-1. If fearlessManaged<version>.exe is running, quit it: Manager menu ->
-   Quit manager (not just closing the window - see Test 6 for why that
-   distinction matters).
-2. Delete the manager data folder (fearless<version>, see Fixtures above).
-3. Delete hello_world's .fearless_out cache folder, next to
-   hello_world.fearless.
-4. Only for Test 1: make sure no Fearless build currently owns the
-   .fearless extension - if a previous run associated it, run Test 1's
-   steps 4-5 once first (or forget the association by hand in Windows'
-   "Default apps" settings) so Test 1 exercises a genuine first-time
-   registration rather than a no-op.
+TEST 7 - Nested folder rejected
+(fresh precondition state, then register hello_world same as Test 2
+step 1)
+1. Project menu -> Add folder... -> select a subfolder inside the
+   already-registered 01_hello_world (e.g. _hello).
+   No tile is added; a warning dialog names both folders.
+2. Dismiss the dialog.
+   Icon grid is unchanged.
 
-====================================================================
-TEST 1 - First-run file association, and forgetting it        [draft]
-====================================================================
-Preconditions: clean start done; nothing owns the .fearless extension yet.
-
-Step 1.
-  Action: Open a Windows Explorer window on the 01_hello_world folder, so
-          hello_world.fearless is visible.
-  Expect: The file shows Explorer's generic/unregistered file icon -
-          nothing Fearless-specific yet.
-
-Step 2.
-  Action: Double-click fearlessManaged0_001.exe (no arguments).
-  Expect: The Manager window opens. No dialog appears about the
-          association - claiming .fearless is silent and automatic on
-          this first run (only forgetting it, step 4, asks for
-          confirmation).
-
-Step 3.
-  Action: Switch back to the Explorer window from step 1. Press F5 if it
-          hasn't updated within a few seconds.
-  Expect: hello_world.fearless now shows the Fearless icon.
-
-Step 4.
-  Action: In the Manager, open Manager -> Forget association. A Yes/No
-          dialog appears asking to remove Fearless as the registered
-          opener for Fearless projects. Click Yes.
-  Expect: The dialog closes, and - this is a real side effect, confirm it
-          deliberately - the Manager window closes too: forgetting the
-          association quits the whole manager process.
-
-Step 5.
-  Action: Switch back to Explorer, F5 if needed.
-  Expect: hello_world.fearless has lost the Fearless icon, back to the
-          generic one.
-
-Step 6.
-  Action: Double-click fearlessManaged0_001.exe again.
-  Expect: The Manager window opens again, with the project list exactly
-          as the manager data folder still records it (association isn't
-          the same thing as the registered-project list).
-
-Step 7.
-  Action: Switch back to Explorer, F5 if needed.
-  Expect: hello_world.fearless shows the Fearless icon again.
-
-====================================================================
-TEST 2 - Project panel split view, and the collapsible divider [draft]
-====================================================================
-Preconditions: Manager open, nothing registered yet (fresh from Test 1,
-or a clean start).
-
-Step 1.
-  Action: With the Manager window open and empty, observe the layout.
-  Expect: Only the "Registered project folders" icon grid is visible,
-          filling the window - no project panel, no divider.
-
-Step 2.
-  Action: Project -> Add folder..., browse to and select 01_hello_world,
-          click Open.
-  Expect: A hello_world tile appears in the icon grid, badged "needs
-          compiling" (no cache yet, per the clean start).
-
-Step 3.
-  Action: Click the hello_world tile.
-  Expect: The window splits: the icon grid moves to a narrower left pane,
-          and a right pane appears showing hello_world's header, an
-          "Information" panel, a "Mains to run" panel, tool buttons, and
-          an empty Output area - with a visible vertical divider between
-          the two panes.
-
-Step 4.
-  Action: Press the mouse down on the divider and drag it left, then
-          right.
-  Expect: The split moves live with the mouse: dragging left widens the
-          right (project) pane, dragging right widens the left (icon)
-          pane. Release re-anchors it at the new position.
-
-Step 5.
-  Action: Drag the divider close enough to the window's right edge that
-          the right pane is left with (near) no width.
-  Expect: The window effectively shows only the icon grid; the project
-          pane is squeezed to a sliver. The icon grid stays fully usable
-          at this width - e.g. clicking the hello_world tile still works.
-
-====================================================================
-TEST 3 - Compile and run all mains; output completeness        [draft]
-====================================================================
-Preconditions: hello_world registered (Test 2), its .fearless_out cache
-deleted, its panel open.
-
-Step 1.
-  Action: Click Compile.
-  Expect: Output immediately shows "--- compiling hello_world ---";
-          Compile/Run selected are disabled while busy. On completion:
-          "--- compile done ---", the "Mains to run" list fills with 5
-          checkboxes - Hello1, Hello3, Hello4, Hello5, Hello6 - and the
-          Information panel's "Compiled cache" line reads "up to date"
-          with a real "Last compile" timestamp.
-
-Step 2.
-  Action: Click the small "All" button above the mains list.
-  Expect: All 5 checkboxes become checked.
-
-Step 3.
-  Action: Click "Run selected".
-  Expect: For each of the 5 mains, in order: Output appends
-          "--- running <name> ---", then that main's own printed output,
-          then "--- <name> exited with <code> after <N>s ---". Hello1/3/4/5
-          exit 0; Hello6 prints an error and stack trace containing
-          AAAAh before exiting non-zero.
-
-Step 4.
-  Action: Once all 5 have run, read the Output area top to bottom (scroll
-          to the very top, then to the very bottom).
-  Expect: All 5 run blocks are present in full - nothing silently
-          truncated or missing - whether that requires scrolling or not.
-
-Step 5. (design check, not just an execution check)
-  Action: Judge whether the default window (760x620) and Output area (a
-          10-row JTextArea) comfortably show this entire 5-main run
-          without the user having to resize anything by hand.
-  Expect: If it does not, record that as a finding against
-          FolderInfo/ManagerGui's defaults - candidate fixes: a taller
-          default Output area, remembering the user's last window size,
-          or a one-click "maximize output" toggle. Don't silently accept
-          scrolling as good enough for a first impression.
-
-====================================================================
-TEST 4 - A second project, and switching between them          [draft]
-====================================================================
-Preconditions: hello_world registered and compiled (Test 3).
-
-Step 1.
-  Action: Project -> Add folder..., select 02_mains_in_methods.
-  Expect: A second tile, mains_in_methods, appears alongside hello_world;
-          badges are independent - hello_world "up to date" (green-ish),
-          mains_in_methods "needs compiling".
-
-Step 2.
-  Action: Click the mains_in_methods tile.
-  Expect: The right pane switches to mains_in_methods' own
-          header/info/mains/output.
-
-Step 3.
-  Action: Click back on the hello_world tile.
-  Expect: The pane switches back; hello_world's Output area still shows
-          the full run log from Test 3 - each project's session state
-          persists independently while the manager stays open.
-
-Step 4.
-  Action: Open the Running menu.
-  Expect: Since nothing is currently executing, it shows one disabled
-          entry: <nothing running>.
-
-====================================================================
-TEST 5 - A running program shows in the Running menu,
-         and Terminate stops it                                [draft]
-====================================================================
-Preconditions: gui_basics (09_gui_basics) registered.
-
-Step 1.
-  Action: Select the gui_basics tile, click Compile, check its one main,
-          click Run selected.
-  Expect: Output shows "--- running <main> ---"; since this program never
-          exits on its own, Compile/Run selected stay disabled (busy) and
-          Terminate becomes enabled; a separate small window belonging to
-          the running Fearless program appears on screen.
-
-Step 2.
-  Action: Open the Running menu.
-  Expect: It now lists one live entry, formatted
-          "gui_basics - <main name>".
-
-Step 3.
-  Action: Click that Running-menu entry.
-  Expect: The manager selects/opens the gui_basics tile and panel - same
-          effect as clicking the tile directly, confirming the menu is a
-          shortcut to whatever is live.
-
-Step 4.
-  Action: Click Terminate.
-  Expect: Output appends "--- terminating <main> ---", the child window
-          closes, a final "--- <main> exited with <code> ... ---" line
-          appears, the Running menu returns to <nothing running>, and
-          Compile/Run selected re-enable.
-
-====================================================================
-TEST 6 - Closing the window (X) hides to the tray;
-         Quit actually exits                                   [draft]
-====================================================================
-Preconditions: Manager open, at least one project registered. Desktop has
-a system tray.
-
-Step 1.
-  Action: Click the window's native close button (X) in the title bar.
-  Expect: The Manager window disappears, but the process is still running
-          - a Fearless tray icon remains in the system tray.
-
-Step 2.
-  Action: Double-click the tray icon (or right-click it -> "Show
-          manager").
-  Expect: The Manager window reappears, restored (not minimized), in
-          front, with every registered project and its state exactly as
-          it was.
-
-Step 3.
-  Action: Open Manager -> Quit manager (or the tray icon's own "Quit
-          manager").
-  Expect: The window closes AND the process actually exits - the tray
-          icon disappears too, and nothing can be brought back short of
-          relaunching the exe.
-
-====================================================================
-TEST 7 - Registering a folder nested inside an already-registered
-         one is rejected                                       [draft]
-====================================================================
-Preconditions: hello_world already registered.
-
-Step 1.
-  Action: Project -> Add folder..., navigate INSIDE the already-
-          registered 01_hello_world folder (e.g. select its _hello
-          subfolder) and confirm.
-  Expect: No new tile is added. A warning dialog appears explaining that
-          the folder can't be tracked because it's nested with an
-          already-registered project, and names both folders.
-
-Step 2.
-  Action: Dismiss the dialog.
-  Expect: The icon grid is unchanged from before step 1 - nothing extra
-          was added.
-
-====================================================================
-TEST 8 - Clear cache forces a recompile; Forget project removes
-         only the manager's tracking                           [draft]
-====================================================================
-Preconditions: mains_in_methods registered and already compiled (e.g.
-continuing from Test 4 after compiling it once).
-
-Step 1.
-  Action: With mains_in_methods selected, Project -> Clear cache.
-  Expect: The Information panel's "Compiled cache" line flips from "up to
-          date" to "needs compiling", and "Mains to run" reverts to
-          <needs compiling> until Compile is pressed again. (This action
-          doesn't print anything to Output.)
-
-Step 2.
-  Action: Project -> Forget project.
-  Expect: The mains_in_methods tile disappears from the icon grid
-          entirely, and the window falls back to the icon-grid-only view
-          (same as before any tile was ever selected).
-
-Step 3.
-  Action: Check the 02_mains_in_methods folder on disk.
-  Expect: The project folder and its marker file are untouched - Forget
-          project only removes it from the manager's own registered.txt,
-          it deletes nothing on disk.
-
-====================================================================
-OPEN QUESTIONS FOR REVIEW
-====================================================================
-- Test 3 step 5 is the one place this document asks for a judgment call
-  instead of a fact - is the current default Output size actually a
-  problem in practice, or is scrolling fine for a first impression?
-
-- Should "clean start" be re-run before EVERY test, or is chaining state
-  forward across tests (as most of these do) acceptable, given a
-  manager-restart step appears explicitly wherever it matters (Tests 1
-  and 6)?
-
-- Anything from the current manager code this plan doesn't cover yet
-  that should be in scope: sort order in the icon grid (Name/Modified/
-  Compiled/Run), the elapsed-time status line at the bottom of the
-  window, "Browse files", "Error report" for an invalid project, the
-  rename-collision prompt when two folders would share a compact name?
+TEST 8 - Clear cache and Forget project
+(fresh precondition state, then register and compile
+02_mains_in_methods)
+1. Select mains_in_methods. Project menu -> Clear cache.
+   "Compiled cache" becomes "needs compiling"; mains list becomes
+   "<needs compiling>".
+2. Project menu -> Forget project.
+   Tile disappears; panel closes.
+3. Check 02_mains_in_methods on disk.
+   Nothing was deleted.
