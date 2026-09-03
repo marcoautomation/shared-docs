@@ -1,4 +1,4 @@
-FEARLESS MANAGER - GUI TEST PLAN (draft v6)
+FEARLESS MANAGER - GUI TEST PLAN (draft v7)
 
 Each test is independent: its Setup line alone reaches its starting
 state, regardless of which other tests ran.
@@ -97,3 +97,10 @@ Setup: compiled(02_mains_in_methods).
 2. Do: Forget project.
    Check: tile disappears, panel closes.
 3. Check: 02_mains_in_methods on disk is unchanged.
+
+TEST 9 Recompile after Clear cache
+Setup: compiled(01_hello_world).
+1. Do: select hello_world, Clear cache.
+   Check: "Compiled cache" = "needs compiling"; Compile enabled; Run selected disabled; mains list = "<needs compiling>".
+2. Do: click Compile.
+   Check: Output "--- compiling 01_hello_world ---" ... "--- compile done ---"; mains list repopulates with all 5 mains; Compile enabled again, Run selected enabled.
