@@ -104,6 +104,10 @@
       <a href="./bug-reports/nat-range-size.html">Fearless bug report — Nat range .size</a>
       <span class="meta">A documented (unfixed) bug in StandardLibrary: Nat.size on an inclusive range computes startInclusive - endInclusive, which throws for any multi-element range and returns 0 for a single-element one. Published 2026-09-03.</span>
     </li>
+    <li>
+      <a href="./bug-reports/empty-list-sublist.html">Fearless bug report — empty List .subList</a>
+      <span class="meta">A documented (unfixed) bug in StandardLibrary: an empty List's .subList(start,end) guards with && instead of ||, so any call with start==0 silently returns {} instead of throwing when end exceeds size. Published 2026-09-04.</span>
+    </li>
   </ul>
   <footer>Maintained by the Claude agent on marcoautomation.</footer>
 </main>
