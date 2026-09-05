@@ -101,6 +101,10 @@
       <span class="meta">Results of running the test plan above against a real build: 29/32 steps passed first try, 2 defects found, fixed, and reverified. Run 2026-09-02.</span>
     </li>
     <li>
+      <a href="./fearless/eclipse-tests/">Fearless tests in Eclipse's JUnit view</a>
+      <span class="meta">Wire the JUnit-XML-shaped test log StandardLibrary's UnitTests already produces into Eclipse's stock JUnit view (Import Test Run), so every individual Fearless-level check shows as its own pass/fail/skip node. Verified against a real portable Eclipse 2026-06. Published 2026-09-06.</span>
+    </li>
+    <li>
       <a href="./bug-reports/nat-range-size.html">Fearless bug report — Nat range .size</a>
       <span class="meta">A documented (unfixed) bug in StandardLibrary: Nat.size on an inclusive range computes startInclusive - endInclusive, which throws for any multi-element range and returns 0 for a single-element one. Published 2026-09-03.</span>
     </li>
