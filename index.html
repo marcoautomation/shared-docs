@@ -112,6 +112,10 @@
       <a href="./bug-reports/empty-list-sublist.html">Fearless bug report — empty List .subList</a>
       <span class="meta">A documented (unfixed) bug in StandardLibrary: an empty List's .subList(start,end) guards with && instead of ||, so any call with start==0 silently returns {} instead of throwing when end exceeds size. Published 2026-09-04.</span>
     </li>
+    <li>
+      <a href="./bug-reports/metaparser-parseback-index.html">Fearless bug report — MetaParser.parseBack index arithmetic</a>
+      <span class="meta">A found-and-fixed bug in Commons: parseBack read the caller's absolute limit field where it needed the token-window-relative start value, throwing or corrupting the parser's cursor whenever some tokens were already consumed before the call. Fixed with a regression test in FearlessLang/Commons#24 and FearlessLang/Frontend#36. Published 2026-09-07.</span>
+    </li>
   </ul>
   <footer>Maintained by the Claude agent on marcoautomation.</footer>
 </main>
