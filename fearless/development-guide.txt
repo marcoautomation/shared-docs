@@ -113,11 +113,11 @@ after every build would create a commit's worth of noise for no real
 change; compare what the two jars contain, not just their bytes, before
 deciding to update the checked-in one.
 
-  FrontendOnly.java
+  TestAllFrontend.java
     Builds Commons and Frontend and runs Frontend's test suite. Fast -
     seconds, not minutes. No arguments.
 
-  CoordinatorMinusIntegration.java
+  TestAllFrontendCoordinator.java
     Builds Commons, Frontend, and Coordinator, and runs Coordinator's test
     suite EXCLUDING its slow `integrationTests` package (which compiles
     and actually runs whole example Fearless programs, one JVM launch per
@@ -128,11 +128,11 @@ deciding to update the checked-in one.
     compile of base as part of this same run; that is not the same thing
     and does not populate any shared cache.
 
-  FullAutoTests.java
-    Builds and runs everything FrontendOnly and CoordinatorMinusIntegration
-    do, PLUS Coordinator's `integrationTests` package. Slow - minutes, not
-    seconds. No arguments. Does not build or publish any application
-    image; that is the next two programs' job.
+  TestAllFrontendCoordinatorIntegration.java
+    Builds and runs everything the previous two programs do, PLUS
+    Coordinator's `integrationTests` package. Slow - minutes, not seconds.
+    No arguments. Does not build or publish any application image; that
+    is the next two programs' job.
 
   DeployPortableFearless.java
     Builds a self-contained, runnable application image of the Fearless
@@ -156,9 +156,15 @@ from a module's `requires`/`exports` fails to compile instead of silently
 working on a classpath and only breaking when something eventually tries
 to actually package this as a module.
 
-None of the five take any arguments. Every dependency jar they need - JUnit,
-jspecify, a JDBC driver, a graphics library, and so on - is already checked
-into `Coordinator/externalJars/`; nothing needs a separate download.
+None of the five take any arguments. Every dependency jar they need is
+already checked in, nothing needs a separate download - but from two
+different folders, kept deliberately separate:
+`Coordinator/externalJars/` (a JDBC driver, a graphics library, and so on
+- what a *running* Fearless program needs, and the only one of the two
+that ends up bundled inside DeployPortableFearless/DeployManagedFearless's
+built application image) and `Coordinator/testJars/` (JUnit and jspecify -
+needed only to compile and run the test suite, and never bundled into
+anything shipped).
 
 WHAT A FULL MANUAL CHECK SHOULD DO
 
@@ -172,9 +178,9 @@ step fails rather than pushing on regardless:
      branch (fetch and reset all four to their upstream main), so the
      check reflects the project as it actually is today, not leftover
      local state.
-  2. Run FullAutoTests.java. If it fails, stop: there is no value in doing
-     any of the following against a build that doesn't even pass its own
-     automated suite.
+  2. Run TestAllFrontendCoordinatorIntegration.java. If it fails, stop:
+     there is no value in doing any of the following against a build that
+     doesn't even pass its own automated suite.
   3. If that passed, exercise the manager GUI by hand (or however your
      environment can drive a GUI) against its published acceptance test
      plan (https://marcoautomation.github.io/shared-docs/manager-gui-tests.txt),
