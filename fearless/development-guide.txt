@@ -91,14 +91,27 @@ upgrading. Run each of these from inside `Coordinator/test`:
   java --module-path ../../Commons/Commons.jar --add-modules Commons \
        mainCoordinator/<Name>.java
 
-`Commons.jar` is committed to the Commons repository itself (unlike
-everything else it builds, which is gitignored) specifically so it is
-present and ready immediately after cloning or updating - it is the one
-thing every one of these five programs needs already built, because each
-of them uses it, as a real Java module via `--module-path`/`--add-modules`
-(not a plain classpath entry - that would defeat the point of the strict,
-real-module compilation described below), to compile everything else on
-the fly.
+`Commons.jar` is committed to the Commons repository itself specifically so
+it is present and ready immediately after cloning or updating - it is the
+one thing every one of these five programs needs already built, because
+each of them uses it, as a real Java module via `--module-path`/
+`--add-modules` (not a plain classpath entry - that would defeat the point
+of the strict, real-module compilation described below), to compile
+everything else on the fly.
+
+This checked-in jar is a stable snapshot, not something every build
+silently overwrites. Building anything regenerates Commons fresh into
+`out/` at the workspace root - a sibling of the four repositories, part of
+none of them, never committed - and that copy is disposable: rebuilt from
+source on every run, safe to delete anytime. If you've changed Commons'
+own source and want the checked-in jar to reflect that (so the next
+checkout or agent picks it up without rebuilding), copy the regenerated
+`out/modular/mods/Commons.jar` over `Commons/Commons.jar` yourself and
+commit it - but only once you've checked it actually differs. Jars aren't
+byte-reproducible (they carry build timestamps), so copying and committing
+after every build would create a commit's worth of noise for no real
+change; compare what the two jars contain, not just their bytes, before
+deciding to update the checked-in one.
 
   FrontendOnly.java
     Builds Commons and Frontend and runs Frontend's test suite. Fast -
