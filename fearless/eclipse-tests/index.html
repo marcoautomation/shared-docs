@@ -119,7 +119,7 @@ Assertion failure.
     <code>&lt;testsuite name="…" tests="…" failures="…" errors="0"&gt;</code> block. Every project's block
     accumulates &mdash; in a plain in-memory list, across the run &mdash; into one
     <code>&lt;testsuites&gt;</code>-wrapped file at
-    <code class="file">Coordinator/.out/eclipse_junit_xml/all_auto_tests.xml</code>, rewritten each time a
+    <code class="file">Coordinator/.out/junit_xml/all_auto_tests.xml</code>, rewritten each time a
     new project's results come in. Nothing hardcodes which projects report: whatever runs
     <code>base.UnitTests</code> lands in that same file, including a project added tomorrow. This runs as a
     side effect of the existing <code>@Test</code> methods, so it happens automatically every time "all
@@ -172,7 +172,7 @@ Assertion failure.
   <h2>How to apply it</h2>
   <ol class="steps">
     <li>Land <a href="https://github.com/FearlessLang/Coordinator/pull/94">pull request #94</a> against <code>FearlessLang/Coordinator</code> (it builds on #90, already merged) &mdash; or apply <code>eclipse-junit-xml-reports.patch</code> from the zip below by hand to your own checkout: <code>git apply eclipse-junit-xml-reports.patch</code> from inside <code>Coordinator/</code>.</li>
-    <li>Rebuild and run tests exactly as you already do &mdash; the console-launcher script, or Eclipse's own <em>Run As &gt; JUnit Test</em>. One file appears: <code class="file">Coordinator/.out/eclipse_junit_xml/all_auto_tests.xml</code>, holding a <code>&lt;testsuite&gt;</code> block for every project that produced one.</li>
+    <li>Rebuild and run tests exactly as you already do &mdash; the console-launcher script, or Eclipse's own <em>Run As &gt; JUnit Test</em>. One file appears: <code class="file">Coordinator/.out/junit_xml/all_auto_tests.xml</code>, holding a <code>&lt;testsuite&gt;</code> block for every project that produced one.</li>
     <li>In Eclipse: <strong>Window &gt; Show View &gt; Other… &gt; Java &gt; JUnit</strong> if the view is not already open.</li>
     <li>Click the small &#9660; dropdown next to the clock-with-arrow ("Test Run History") icon in the JUnit view's toolbar, choose <strong>Import…</strong>, and pick <code>all_auto_tests.xml</code>. Next time you add a project with Fearless-level tests, it just shows up in this same file &mdash; nothing new to pick.</li>
     <li>Browse the imported run like any other: expand nodes, click a red one to see its Failure Trace.</li>
@@ -186,7 +186,7 @@ Assertion failure.
   <pre>java FearlessJUnitXml.java &lt;fearlessProjectRoot&gt; [suiteName] [outDir]
 # example
 java FearlessJUnitXml.java C:\myFearlessProject myProject
-# -&gt; C:\myFearlessProject\.out\eclipse_junit_xml\all_auto_tests.xml</pre>
+# -&gt; C:\myFearlessProject\.out\junit_xml\all_auto_tests.xml</pre>
 
   <h2>The compromise, plainly</h2>
   <div class="card">
@@ -222,7 +222,7 @@ java FearlessJUnitXml.java C:\myFearlessProject myProject
     <li>
       <a href="fearless-eclipse-junit-tests.zip">fearless-eclipse-junit-tests.zip</a>
       <span class="meta">The patch for RunIntegration.java, the standalone FearlessJUnitXml.java converter, and a short README.</span>
-      <span class="hash" id="zip-hash">SHA-256 77a8515ec8e574a71e5ad408764abcd7eb93c9d6934122d5489b570563184103</span>
+      <span class="hash" id="zip-hash">SHA-256 84b23e595348fc8924b857f26ef989bbf720f7243de98053cdec6d43f2e30b11</span>
     </li>
   </ul>
 
