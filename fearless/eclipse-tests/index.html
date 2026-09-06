@@ -69,7 +69,7 @@
 <body>
 <main>
   <h1>Fearless tests in Eclipse's JUnit view</h1>
-  <p class="lede">A small, verified way to see every individual Fearless-level <code>.check</code>/<code>.test</code> &mdash; not just one bulk pass/fail per project &mdash; as real entries in Eclipse's own JUnit view. Published 2026-09-06.</p>
+  <p class="lede">A small, verified way to see every individual Fearless-level <code>.check</code>/<code>.test</code> &mdash; not just one bulk pass/fail per project &mdash; as real entries in Eclipse's own JUnit view, all from a single report file. Published 2026-09-06, updated the same day to accumulate into one file instead of one per project.</p>
 
   <h2>What already exists</h2>
   <p>
@@ -115,35 +115,48 @@ Assertion failure.
     A small, test-only change to <code class="file">RunIntegration.java</code>: after each Fearless
     project runs, find the newest <code>unit_test_log*.log</code> for that project, strip the internal
     <code>PLAN|...</code> planning lines (turning any <code>PLAN|DISABLED|...</code> line into a
-    <code>&lt;testcase&gt;...&lt;skipped/&gt;&lt;/testcase&gt;</code> entry first), wrap what is left in a
-    <code>&lt;testsuite name="…" tests="…" failures="…" errors="0"&gt;</code> root, and write it to
-    <code class="file">Coordinator/.out/eclipse-junit-xml/TEST-&lt;project&gt;.xml</code>. This runs as a
+    <code>&lt;testcase&gt;...&lt;skipped/&gt;&lt;/testcase&gt;</code> entry first), and wrap what is left in a
+    <code>&lt;testsuite name="…" tests="…" failures="…" errors="0"&gt;</code> block. Every project's block
+    accumulates &mdash; in a plain in-memory list, across the run &mdash; into one
+    <code>&lt;testsuites&gt;</code>-wrapped file at
+    <code class="file">Coordinator/.out/eclipse_junit_xml/all_auto_tests.xml</code>, rewritten each time a
+    new project's results come in. Nothing hardcodes which projects report: whatever runs
+    <code>base.UnitTests</code> lands in that same file, including a project added tomorrow. This runs as a
     side effect of the existing <code>@Test</code> methods, so it happens automatically every time "all
     tests" run &mdash; the console-launcher script or Eclipse's own runner, no extra step to remember.
   </p>
   <p>
     That XML is exactly the format Eclipse's JUnit view can <strong>import</strong> as a full test-run
     session: open the JUnit view, click the small dropdown beside the history-clock toolbar icon, choose
-    <strong>Import…</strong>, and pick the file. Eclipse rebuilds the whole run as if it had just executed
-    it &mdash; a real tree with one node per Fearless-level check, individually green/red/skipped, with
-    complete failure detail for anything red.
+    <strong>Import…</strong>, and pick the one file. Eclipse rebuilds the whole run as if it had just
+    executed it &mdash; a real tree with one top-level node per project and one leaf per Fearless-level
+    check underneath it, individually green/red/skipped, with complete failure detail for anything red.
   </p>
 
   <h2>Verified, concretely</h2>
   <p>
-    Built and run for real: a fresh portable Eclipse 2026-06 ("Eclipse IDE for Java Developers",
+    Built and run for real, twice. First pass (the original <a href="https://github.com/FearlessLang/Coordinator/pull/90">PR #90</a>): a fresh
+    portable Eclipse 2026-06 ("Eclipse IDE for Java Developers",
     <code>eclipse-java-2026-06-R-win32-x86_64.zip</code>), a Java project pointed at a real
     <code>Coordinator</code> checkout, compiled clean (0 errors) under Eclipse's own compiler at
     language level 21, then the actual test suite run to produce real XML reports, then imported into
-    the JUnit view by hand.
+    the JUnit view by hand &mdash; one file at a time, as described below at the time.
+  </p>
+  <p>
+    Second pass (the accumulation change, <a href="https://github.com/FearlessLang/Coordinator/pull/94">PR #94</a>): reused that same Eclipse
+    install and workspace, reran the full Coordinator suite via the console-launcher script, confirmed
+    the resulting <code>all_auto_tests.xml</code> parses as one well-formed <code>&lt;testsuites&gt;</code>
+    document (4 <code>&lt;testsuite&gt;</code> blocks, 1752 <code>&lt;testcase&gt;</code>, 1
+    <code>&lt;failure&gt;</code>, 11 <code>&lt;skipped&gt;</code> &mdash; matching the per-project counts
+    exactly), then imported that one file into the JUnit view.
   </p>
   <figure>
-    <img class="shot" src="junit-view-passing.png" alt="Eclipse JUnit view showing 1734 of 1734 Fearless-level tests, 11 correctly skipped, all others green">
-    <figcaption>testingStandardLibrary imported: 1734 individual Fearless-level checks, each its own node. The 11 <code>TestUStr</code> entries with a skip icon are <code>.disabledTest</code>/<code>.disabledCheck</code> in the source &mdash; everything else is green.</figcaption>
+    <img class="shot" src="junit-view-passing.png" alt="Eclipse JUnit view showing one imported run with four top-level project nodes and 1752 of 1752 Fearless-level tests, 11 correctly skipped">
+    <figcaption>One Import…, four projects: <code>testLogging</code>, <code>testUnitTests</code>, <code>testingStandardLibrary</code> and <code>testAssets</code> all show up as top-level nodes in the same imported run, 1752 individual Fearless-level checks total. The 11 <code>TestUStr</code> entries with a skip icon are <code>.disabledTest</code>/<code>.disabledCheck</code> in the source.</figcaption>
   </figure>
   <figure>
-    <img class="shot" src="junit-view-failure.png" alt="Eclipse JUnit view showing one failed test with expected/actual and a Fearless stack trace in the Failure Trace pane">
-    <figcaption>testUnitTests imported (the one project whose job is to fail): a real red node, with Eclipse's own Failure Trace pane showing the exact expected/actual and Fearless stack trace.</figcaption>
+    <img class="shot" src="junit-view-failure.png" alt="Eclipse JUnit view showing one failed test with expected/actual and a Fearless stack trace in the Failure Trace pane, alongside the other three projects in the same tree">
+    <figcaption><code>testUnitTests</code>' <code>MyTests</code> (the one project whose job is to fail) still shows a real red node with Eclipse's own Failure Trace pane giving the exact expected/actual and Fearless stack trace &mdash; now sitting in the same tree as the other three projects instead of a separate imported run.</figcaption>
   </figure>
   <p>
     Also confirmed: Eclipse's JUnit view literally offers <strong>JUnit 6</strong> as a test-runner kind
@@ -158,21 +171,22 @@ Assertion failure.
 
   <h2>How to apply it</h2>
   <ol class="steps">
-    <li>Land <a href="https://github.com/FearlessLang/Coordinator/pull/90">pull request #90</a> against <code>FearlessLang/Coordinator</code> (or apply <code>eclipse-junit-xml-reports.patch</code> from the zip below by hand to your own checkout: <code>git apply eclipse-junit-xml-reports.patch</code> from inside <code>Coordinator/</code>).</li>
-    <li>Rebuild and run tests exactly as you already do &mdash; the console-launcher script, or Eclipse's own <em>Run As &gt; JUnit Test</em>. Three files appear under <code class="file">Coordinator/.out/eclipse-junit-xml/</code>: <code>TEST-testAssets.xml</code>, <code>TEST-testUnitTests.xml</code>, <code>TEST-testingStandardLibrary.xml</code>.</li>
+    <li>Land <a href="https://github.com/FearlessLang/Coordinator/pull/94">pull request #94</a> against <code>FearlessLang/Coordinator</code> (it builds on #90, already merged) &mdash; or apply <code>eclipse-junit-xml-reports.patch</code> from the zip below by hand to your own checkout: <code>git apply eclipse-junit-xml-reports.patch</code> from inside <code>Coordinator/</code>.</li>
+    <li>Rebuild and run tests exactly as you already do &mdash; the console-launcher script, or Eclipse's own <em>Run As &gt; JUnit Test</em>. One file appears: <code class="file">Coordinator/.out/eclipse_junit_xml/all_auto_tests.xml</code>, holding a <code>&lt;testsuite&gt;</code> block for every project that produced one.</li>
     <li>In Eclipse: <strong>Window &gt; Show View &gt; Other… &gt; Java &gt; JUnit</strong> if the view is not already open.</li>
-    <li>Click the small &#9660; dropdown next to the clock-with-arrow ("Test Run History") icon in the JUnit view's toolbar, choose <strong>Import…</strong>, and pick one of the three files.</li>
+    <li>Click the small &#9660; dropdown next to the clock-with-arrow ("Test Run History") icon in the JUnit view's toolbar, choose <strong>Import…</strong>, and pick <code>all_auto_tests.xml</code>. Next time you add a project with Fearless-level tests, it just shows up in this same file &mdash; nothing new to pick.</li>
     <li>Browse the imported run like any other: expand nodes, click a red one to see its Failure Trace.</li>
   </ol>
   <p>
     Prefer not to touch Coordinator at all yet, or want this for a Fearless project that is not one of
-    the three built-in integration tests? The zip also has a small, dependency-free, single-file Java
-    program that does the same conversion standalone:
+    the built-in integration tests? The zip also has a small, dependency-free, single-file Java
+    program that does the same conversion standalone, merging into the same accumulating file across
+    separate runs (rerunning a project replaces just that project's block):
   </p>
   <pre>java FearlessJUnitXml.java &lt;fearlessProjectRoot&gt; [suiteName] [outDir]
 # example
 java FearlessJUnitXml.java C:\myFearlessProject myProject
-# -&gt; C:\myFearlessProject\.out\eclipse-junit-xml\TEST-myProject.xml</pre>
+# -&gt; C:\myFearlessProject\.out\eclipse_junit_xml\all_auto_tests.xml</pre>
 
   <h2>The compromise, plainly</h2>
   <div class="card">
@@ -182,6 +196,7 @@ java FearlessJUnitXml.java C:\myFearlessProject myProject
       <li>Full failure detail (expected/actual/stack trace) exactly as Fearless produced it, browsable the same way as any other JUnit failure.</li>
       <li>Zero changes to StandardLibrary or the Fearless language itself &mdash; the format it already produces was already this close to standard JUnit XML.</li>
       <li>Generated automatically as part of the run you already do, in both the two flows this codebase already supports (script or Eclipse).</li>
+      <li>One file to Import…, regardless of how many projects report &mdash; today's four or a fifth added next month, with no list of project names to maintain anywhere.</li>
     </ul>
   </div>
   <div class="card">
@@ -190,7 +205,7 @@ java FearlessJUnitXml.java C:\myFearlessProject myProject
       <li>A single seamless live view. Running "all tests" and seeing the granular results is two actions, not one &mdash; run, then Import&hellip;. Eclipse has no stock way to stream an externally-produced report into a launch's live tree.</li>
       <li>Jump-to-source from an imported node. These are <code>.fear</code> files, not <code>.java</code> &mdash; Eclipse correctly reports "Test class not found in selected project" on double-click. No worse than today's plain console output, just not better either.</li>
       <li>Coverage of Fearless projects that don't use <code>base.UnitTests</code> at all &mdash; nothing to report for those, so nothing is written (not a bug, there is genuinely no test data).</li>
-      <li>A report that reflects anything other than the <em>most recent</em> run of a given project.</li>
+      <li>A file that reflects anything other than the <em>most recent</em> run of each project &mdash; that project's block is replaced wholesale next time it runs, not merged check-by-check.</li>
     </ul>
     <p style="margin:0.8rem 0 0; color:var(--muted); font-size:0.9rem;">
       The more ambitious version of this &mdash; a real custom <code>org.junit.platform.engine.TestEngine</code>
@@ -207,12 +222,12 @@ java FearlessJUnitXml.java C:\myFearlessProject myProject
     <li>
       <a href="fearless-eclipse-junit-tests.zip">fearless-eclipse-junit-tests.zip</a>
       <span class="meta">The patch for RunIntegration.java, the standalone FearlessJUnitXml.java converter, and a short README.</span>
-      <span class="hash" id="zip-hash">SHA-256 c4d436abd7b819245bcb7f6b0b090a6510c087219b73473dcdd83f82baca3e18</span>
+      <span class="hash" id="zip-hash">SHA-256 77a8515ec8e574a71e5ad408764abcd7eb93c9d6934122d5489b570563184103</span>
     </li>
   </ul>
 
   <p><a href="../">&larr; back to Fearless downloads</a></p>
-  <footer>Verified against a real portable Eclipse 2026-06 install on this machine. Maintained by the Claude agent on marcoautomation.</footer>
+  <footer>Verified against a real portable Eclipse 2026-06 install on this machine, both for the original per-project reports and this page's accumulating-file update. Maintained by the Claude agent on marcoautomation.</footer>
 </main>
 </body>
 </html>
