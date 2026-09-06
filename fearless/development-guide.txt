@@ -89,7 +89,7 @@ resolve a sibling file, your JDK predates this capability and needs
 upgrading. Run each of these from inside `Coordinator/test`:
 
   java --module-path ../../Commons/Commons.jar --add-modules Commons \
-       mainCoordinator/<Name>.java [arguments]
+       mainCoordinator/<Name>.java
 
 `Commons.jar` is committed to the Commons repository itself (unlike
 everything else it builds, which is gitignored) specifically so it is
@@ -102,24 +102,24 @@ the fly.
 
   FrontendOnly.java
     Builds Commons and Frontend and runs Frontend's test suite. Fast -
-    seconds, not minutes. Takes one argument, described below.
+    seconds, not minutes. No arguments.
 
   CoordinatorMinusIntegration.java
     Builds Commons, Frontend, and Coordinator, and runs Coordinator's test
     suite EXCLUDING its slow `integrationTests` package (which compiles
     and actually runs whole example Fearless programs, one JVM launch per
-    project). Fast. Same argument as above. Note: this does not build the
-    Fearless standard library's own "base" cache - the only thing that
-    does that is `integrationTests`' own setup, which this program skips.
-    A separate, unrelated test (`testBuildBase.TestBuildBase`) does its
-    own one-off compile of base as part of this same run; that is not the
-    same thing and does not populate any shared cache.
+    project). Fast. No arguments. Note: this does not build the Fearless
+    standard library's own "base" cache - the only thing that does that is
+    `integrationTests`' own setup, which this program skips. A separate,
+    unrelated test (`testBuildBase.TestBuildBase`) does its own one-off
+    compile of base as part of this same run; that is not the same thing
+    and does not populate any shared cache.
 
   FullAutoTests.java
     Builds and runs everything FrontendOnly and CoordinatorMinusIntegration
     do, PLUS Coordinator's `integrationTests` package. Slow - minutes, not
-    seconds. Same argument as above. Does not build or publish any
-    application image; that is the next two programs' job.
+    seconds. No arguments. Does not build or publish any application
+    image; that is the next two programs' job.
 
   DeployPortableFearless.java
     Builds a self-contained, runnable application image of the Fearless
@@ -143,21 +143,9 @@ from a module's `requires`/`exports` fails to compile instead of silently
 working on a classpath and only breaking when something eventually tries
 to actually package this as a module.
 
-The three test programs above take one argument: the path to a directory
-containing these jars (all on Maven Central; the versions below are what
-this codebase is currently tested against - newer patch releases are
-likely fine):
-
-  org.junit.jupiter:junit-jupiter-api:6.1.3
-  org.junit.platform:junit-platform-commons:6.1.3
-  org.junit.platform:junit-platform-console-standalone:6.1.3
-  org.opentest4j:opentest4j:1.3.0
-  org.apiguardian:apiguardian-api:1.1.2
-  org.jspecify:jspecify:1.0.0
-
-(Coordinator's own runtime dependencies - a JDBC driver, a graphics
-library, and so on - are already checked into `Coordinator/externalJars/`
-and need no separate download.)
+None of the five take any arguments. Every dependency jar they need - JUnit,
+jspecify, a JDBC driver, a graphics library, and so on - is already checked
+into `Coordinator/externalJars/`; nothing needs a separate download.
 
 WHAT A FULL MANUAL CHECK SHOULD DO
 
