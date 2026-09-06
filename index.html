@@ -12,6 +12,8 @@
     --muted: #6b6459;
     --accent: #a8531e;
     --border: #e6e1d8;
+    --good: #2e7d32;
+    --bad: #a8321e;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -21,6 +23,8 @@
       --muted: #a89f8f;
       --accent: #e08a4f;
       --border: #332d23;
+      --good: #7fc98a;
+      --bad: #e0705f;
     }
   }
   * { box-sizing: border-box; }
@@ -45,6 +49,15 @@
     color: var(--muted);
     margin: 0 0 3rem;
   }
+  h2 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    color: var(--muted);
+    margin: 2.6rem 0 1rem;
+  }
+  h2:first-of-type { margin-top: 0; }
   ul.docs {
     list-style: none;
     margin: 0;
@@ -72,6 +85,19 @@
     color: var(--muted);
     font-size: 0.9rem;
   }
+  .badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.12rem 0.5rem;
+    border-radius: 999px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .badge.open { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
+  .badge.fixed { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); }
   footer {
     margin-top: 3rem;
     color: var(--muted);
@@ -82,41 +108,60 @@
 <body>
 <main>
   <h1>Shared documents</h1>
-  <p class="lede">Reports and write-ups for Marco, published here for a stable link independent of any single conversation.</p>
+  <p class="lede">Fearless builds, guides, and write-ups published here for a stable link independent of any single conversation. This index is kept current with what's actually on the site &mdash; last surveyed 2026-09-07.</p>
+
+  <h2>Downloads</h2>
   <ul class="docs">
     <li>
-      <a href="./fearless/">Fearless downloads &mdash; portable &amp; manager</a>
-      <span class="meta">Self-contained Windows x64 builds of the Fearless toolchain, rebuilt from FearlessLang upstream main. No JDK required.</span>
+      <a href="./fearless/">Fearless portable &amp; manager</a>
+      <span class="meta">Self-contained Windows x64 builds of the Fearless compiler/runner and the desktop project manager, rebuilt from FearlessLang upstream main. No JDK required. Includes a zip of 12 runnable example projects.</span>
+    </li>
+  </ul>
+
+  <h2>Development &amp; manual testing</h2>
+  <ul class="docs">
+    <li>
+      <a href="./fearless/development-guide.txt">Fearless development and verification guide</a>
+      <span class="meta">How the four repos (Commons, Frontend, Coordinator, StandardLibrary) fit together, how to check them out, and the five Java programs that build and test them &mdash; for any human or AI agent working on the codebase.</span>
     </li>
     <li>
-      <a href="./fearless-slimdown/">Fearless Slimdown — code-size review</a>
-      <span class="meta">Read-only findings across Frontend, Coordinator, StandardLibrary, and Commons — dead code, duplication, and over-abstraction. Published 2026-09-01.</span>
+      <a href="./manager-gui-tests.txt">Fearless Manager GUI &mdash; manual test plan</a>
+      <span class="meta">Scripted, step-by-step acceptance tests for the desktop manager's GUI &mdash; file association, the project split view, compile/run &mdash; run by hand since no automated harness in the repo covers GUI behavior. Draft v7, 9 tests.</span>
     </li>
     <li>
-      <a href="./manager-gui-tests.txt">Fearless Manager — GUI test plan (plain text)</a>
-      <span class="meta">Scripted acceptance tests for the desktop manager's GUI — file association, the project split view, compile/run. Draft v6, 2026-09-02.</span>
-    </li>
-    <li>
-      <a href="./manager-gui-test-report.txt">Fearless Manager — GUI test report (plain text)</a>
-      <span class="meta">Results of running the test plan above against a real build: 29/32 steps passed first try, 2 defects found, fixed, and reverified. Run 2026-09-02.</span>
+      <a href="./manager-gui-test-report.txt">Fearless Manager GUI &mdash; test report</a>
+      <span class="meta">Results of running tests 1&ndash;8 of the plan above against a real build: 29/32 steps passed first try; 2 defects found, fixed (merged in Coordinator PR&nbsp;#70), and reverified. Run 2026-09-02, predates test 9.</span>
     </li>
     <li>
       <a href="./fearless/eclipse-tests/">Fearless tests in Eclipse's JUnit view</a>
-      <span class="meta">Wire the JUnit-XML-shaped test log StandardLibrary's UnitTests already produces into Eclipse's stock JUnit view (Import Test Run), so every individual Fearless-level check shows as its own pass/fail/skip node. Verified against a real portable Eclipse 2026-06. Published 2026-09-06.</span>
-    </li>
-    <li>
-      <a href="./bug-reports/nat-range-size.html">Fearless bug report — Nat range .size</a>
-      <span class="meta">A documented (unfixed) bug in StandardLibrary: Nat.size on an inclusive range computes startInclusive - endInclusive, which throws for any multi-element range and returns 0 for a single-element one. Published 2026-09-03.</span>
-    </li>
-    <li>
-      <a href="./bug-reports/empty-list-sublist.html">Fearless bug report — empty List .subList</a>
-      <span class="meta">A documented (unfixed) bug in StandardLibrary: an empty List's .subList(start,end) guards with && instead of ||, so any call with start==0 silently returns {} instead of throwing when end exceeds size. Published 2026-09-04.</span>
-    </li>
-    <li>
-      <a href="./bug-reports/metaparser-parseback-index.html">Fearless bug report — MetaParser.parseBack index arithmetic</a>
-      <span class="meta">A bug in Commons: parseBack read the caller's absolute limit field where it needed the token-window-relative start value, throwing or corrupting the parser's cursor whenever some tokens were already consumed before the call. A fix and regression test were proposed (FearlessLang/Commons#24, FearlessLang/Frontend#36) but closed without merging. Published 2026-09-07.</span>
+      <span class="meta">Wires the JUnit-XML-shaped test log StandardLibrary's UnitTests already produces into Eclipse's stock JUnit view, so every individual Fearless-level check shows as its own pass/fail/skip node. Verified against a real portable Eclipse 2026-06; both underlying PRs are merged upstream.</span>
     </li>
   </ul>
+
+  <h2>Code review</h2>
+  <ul class="docs">
+    <li>
+      <a href="./fearless-slimdown/">Fearless Slimdown &mdash; code-size review</a>
+      <span class="meta">A read-only pass across Frontend, Coordinator, StandardLibrary, and Commons looking for dead code, duplication, and over-abstraction: 14 findings. Its top two (the orphaned guiLibrary/, and rt/Fs.java's duplication) are already fixed upstream &mdash; see the update note on the page. Published 2026-09-01.</span>
+    </li>
+  </ul>
+
+  <h2>Bug reports &mdash; FearlessLang/StandardLibrary &amp; Commons</h2>
+  <ul class="docs">
+    <li>
+      <a href="./bug-reports/metaparser-parseback-index.html">MetaParser.parseBack index arithmetic</a><span class="badge open">open</span>
+      <span class="meta">Commons: parseBack read the caller's absolute limit field where it needed a token-window-relative value, corrupting the parser's cursor. A fix and regression test were proposed (Commons#24, Frontend#36) but closed without merging. Published 2026-09-07.</span>
+    </li>
+    <li>
+      <a href="./bug-reports/nat-range-size.html">Nat range .size</a><span class="badge fixed">fixed</span>
+      <span class="meta">StandardLibrary: an inclusive Nat range's .size computed startInclusive - endInclusive instead of endInclusive - startInclusive + 1, throwing for any multi-element range. Published 2026-09-03, fixed upstream shortly after.</span>
+    </li>
+    <li>
+      <a href="./bug-reports/empty-list-sublist.html">Empty List .subList</a><span class="badge fixed">fixed</span>
+      <span class="meta">StandardLibrary: an empty List's .subList(start,end) guarded with &amp;&amp; instead of ||, so a call with start==0 silently returned {} instead of throwing when end exceeded size. Published 2026-09-04, fixed upstream shortly after.</span>
+    </li>
+  </ul>
+
   <footer>Maintained by the Claude agent on marcoautomation.</footer>
 </main>
 </body>

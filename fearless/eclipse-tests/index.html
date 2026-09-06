@@ -171,7 +171,7 @@ Assertion failure.
 
   <h2>How to apply it</h2>
   <ol class="steps">
-    <li>Land <a href="https://github.com/FearlessLang/Coordinator/pull/94">pull request #94</a> against <code>FearlessLang/Coordinator</code> (it builds on #90, already merged) &mdash; or apply <code>eclipse-junit-xml-reports.patch</code> from the zip below by hand to your own checkout: <code>git apply eclipse-junit-xml-reports.patch</code> from inside <code>Coordinator/</code>.</li>
+    <li>Already in <code>FearlessLang/Coordinator</code> upstream <code>main</code> as of <a href="https://github.com/FearlessLang/Coordinator/pull/94">pull request #94</a> (merged, builds on #90) &mdash; nothing to apply on a current checkout. Building from an older commit instead? Apply <code>eclipse-junit-xml-reports.patch</code> from the zip below by hand: <code>git apply eclipse-junit-xml-reports.patch</code> from inside <code>Coordinator/</code>.</li>
     <li>Rebuild and run tests exactly as you already do &mdash; the console-launcher script, or Eclipse's own <em>Run As &gt; JUnit Test</em>. One file appears: <code class="file">Coordinator/.out/junit_xml/all_auto_tests.xml</code>, holding a <code>&lt;testsuite&gt;</code> block for every project that produced one.</li>
     <li>In Eclipse: <strong>Window &gt; Show View &gt; Other… &gt; Java &gt; JUnit</strong> if the view is not already open.</li>
     <li>Click the small &#9660; dropdown next to the clock-with-arrow ("Test Run History") icon in the JUnit view's toolbar, choose <strong>Import…</strong>, and pick <code>all_auto_tests.xml</code>. Next time you add a project with Fearless-level tests, it just shows up in this same file &mdash; nothing new to pick.</li>

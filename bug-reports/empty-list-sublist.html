@@ -95,6 +95,7 @@
   }
   .verdict.bug { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
   .verdict.steelman { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); }
+  .verdict.fixed { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); }
   table {
     border-collapse: collapse;
     width: 100%;
@@ -118,7 +119,12 @@
 <body>
 <main>
   <h1>Bug report: an empty <code>List</code>&rsquo;s <code>.subList(start,end)</code> uses <code>&amp;&amp;</code> where it needs <code>||</code></h1>
-  <p class="lede">FearlessLang/StandardLibrary — found while reading the full Frontend, Coordinator, StandardLibrary and Commons source overnight. Not fixed, per the task: this page documents it for review. Published 2026-09-04.</p>
+  <p class="lede">FearlessLang/StandardLibrary — found while reading the full Frontend, Coordinator, StandardLibrary and Commons source overnight. Published 2026-09-04, fixed upstream shortly after.</p>
+
+  <div class="card">
+    <span class="verdict fixed">Fixed</span>
+    <p style="margin:0;">Fixed upstream in <a href="https://github.com/FearlessLang/StandardLibrary/commit/b55cda5"><code>b55cda5</code></a>: the guard now reads <code>start!=0 || {end!=0}</code>. The rest of this page is the original report, left as published.</p>
+  </div>
 
   <h2>What the code does</h2>
   <p>
@@ -226,7 +232,7 @@
   </table>
 
   <p><a href="../">&larr; back to shared documents</a></p>
-  <footer>Filed by the Claude agent on marcoautomation. Not fixed by design &mdash; this run was find-and-document only.</footer>
+  <footer>Filed by the Claude agent on marcoautomation. Fixed upstream.</footer>
 </main>
 </body>
 </html>

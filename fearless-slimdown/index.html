@@ -234,6 +234,8 @@
       </div>
     </div>
 
+    <p class="repo-note" style="margin-top:0.8rem;"><em>Update 2026-09-07: done. This finding and the <code>rt/Fs.java</code> duplication finding below were resolved together in <a href="https://github.com/FearlessLang/StandardLibrary/pull/28">StandardLibrary PR&nbsp;#28</a>, merged 2026-09-01 shortly after this review completed. The rest of this page's findings were not re-checked as part of this update.</em></p>
+
     <p class="repo-note" style="margin-top:1.4rem;"><strong>Then, roughly in size/risk order:</strong> <code>Commons/utils/Streams.java</code>'s zipper duplication (~279→&lt;120 lines) · <code>rt/Fs.java</code> duplicating <code>Commons/tools/Fs.java</code> with a silently-dropped check · Coordinator's file-association logic duplicated between the launcher and the manager · the arity-1..16 native constructor bodies in <code>Lists$1c$0</code>/<code>Sets$o$0</code>/<code>Maps$o$0.java</code> (~150-250 lines) · a tail of smaller, well-contained items — see each repo's section.</p>
 
     <p class="repo-note" style="margin-top:1rem;"><strong>What turned out not to be a finding, and why that's worth stating explicitly:</strong> this codebase repeats itself in several places that look like accidental duplication but are one of three things — <em>necessary per-target duplication</em> (Windows registry vs. Linux XDG code; per-numeric-type arithmetic where Int/Nat/Byte/Float genuinely need different overflow handling; per-nominal-type wrapper declarations where being separate <em>is</em> the feature), a <em>deliberate multi-pass compiler pipeline</em> (the AST appearing three times, once per compilation phase), or <em>two functions that only look like a throw/boolean pair</em> but carry different information. Forcing a cut on any of these would have made the code worse, not smaller in a way that matters.</p>
@@ -496,6 +498,8 @@
         <div class="finding-path">StandardLibrary/rt/Fs.java (180 lines) vs. Commons/tools/Fs.java (238 lines)</div>
         <div class="finding-body">
           Same class shape, largely the same method bodies (<code>ensureDir</code>, <code>writeUtf8</code>, <code>readUtf8</code>, <code>copyTree</code>, <code>rmTree</code>, <code>runTool</code>, path-name helpers, OS checks). There's a real reason two copies might need to exist — <code>rt/</code> ships inside every compiled Fearless program, <code>Commons.jar</code> is a compiler-only dependency — so a straight merge isn't free. But <code>reqDir(Path,String)</code> in the <code>rt</code> copy has an <strong>empty body</strong>, silently dropping the directory check the <code>Commons</code> version performs — that's drift, not a considered trim, and worth a maintainer's look either way.
+          <br><br>
+          <em>Resolved 2026-09-01 in <a href="https://github.com/FearlessLang/StandardLibrary/pull/28">StandardLibrary PR #28</a>: rt/Fs.java trimmed from 180 lines to the two methods actually called, removing the drifted <code>reqDir</code> (and a second, previously-unflagged instance of the same drift in <code>cleanDirContents</code>) outright rather than patching them.</em>
         </div>
       </div>
 
