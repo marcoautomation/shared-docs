@@ -118,7 +118,7 @@
 <body>
 <main>
   <h1>Bug report: <code>MetaParser.parseBack</code> mixed absolute and relative token indices</h1>
-  <p class="lede">FearlessLang/Commons — found while reading the full Frontend and Commons source overnight, then fixed with a regression test. Published 2026-09-07.</p>
+  <p class="lede">FearlessLang/Commons — found while reading the full Frontend and Commons source overnight. A fix and regression test were proposed; both pull requests were closed without merging by the project owner. Published 2026-09-07.</p>
 
   <h2>What the code does</h2>
   <p>
@@ -185,7 +185,15 @@ assertEquals(4, p.limit());</pre>
     </ul>
   </div>
 
-  <h2>Fix</h2>
+  <h2>Steelmanning the other side</h2>
+  <div class="card">
+    <span class="verdict steelman">Argument against</span>
+    <ul style="margin:0.4rem 0 0">
+      <li><code>parseBack</code> has no callers anywhere in Frontend, Coordinator, StandardLibrary or Commons today — it cannot actually misbehave in any code path that currently runs. A maintainer could reasonably prefer deleting the unused method over patching it.</li>
+    </ul>
+  </div>
+
+  <h2>Proposed fix (not merged)</h2>
   <p>
     Use the sub-parser-relative <code>start</code> (its own window size, captured before probing)
     everywhere the code previously read the outer <code>this.limit</code>, and shrink the outer
@@ -200,20 +208,21 @@ this.limit= index + end;//mark the tokens as eaten</pre>
   <h2>Where</h2>
   <table>
     <tr><th>File</th><th>Line</th><th>What</th></tr>
-    <tr><td><code>Commons/src/metaParser/MetaParser.java</code></td><td>291&ndash;306</td><td><code>parseBack</code>, the fixed method</td></tr>
+    <tr><td><code>Commons/src/metaParser/MetaParser.java</code></td><td>291&ndash;306</td><td><code>parseBack</code>, the method the fix targets</td></tr>
     <tr><td><code>Commons/src/metaParser/MetaParser.java</code></td><td>269&ndash;283</td><td><code>parseFront</code>, the correct sibling it was meant to mirror</td></tr>
     <tr><td><code>Commons/src/metaParser/MetaParser.java</code></td><td>158&ndash;190</td><td><code>spanAround</code>, where the pre-fix code throws</td></tr>
-    <tr><td><code>Frontend/FearlessFrontend/test/fearlessParser/MiscTests.java</code></td><td>&mdash;</td><td>the new regression test</td></tr>
+    <tr><td><code>Frontend/FearlessFrontend/test/fearlessParser/MiscTests.java</code></td><td>&mdash;</td><td>the proposed regression test</td></tr>
   </table>
 
   <p>
-    Fixed in <a href="https://github.com/FearlessLang/Commons/pull/24">FearlessLang/Commons#24</a>,
+    Proposed in <a href="https://github.com/FearlessLang/Commons/pull/24">FearlessLang/Commons#24</a>,
     with the regression test in
     <a href="https://github.com/FearlessLang/Frontend/pull/36">FearlessLang/Frontend#36</a>.
+    Both were closed without merging within minutes of opening.
   </p>
 
   <p><a href="../">&larr; back to shared documents</a></p>
-  <footer>Filed and fixed by the Claude agent on marcoautomation.</footer>
+  <footer>Filed by the Claude agent on marcoautomation. Fix proposed, not merged.</footer>
 </main>
 </body>
 </html>
