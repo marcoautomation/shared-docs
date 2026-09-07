@@ -45,7 +45,7 @@ splitter above Output - would close this the rest of the way but is a
 more opinionated UX call, left for review rather than bundled in here.
 
 FIX STATUS
-Both fixes are on FearlessLang/Coordinator PR #70:
+Both fixes are on FearlessLang/Coordinator PR #70 (merged 2026-09-02):
 https://github.com/FearlessLang/Coordinator/pull/70
 Existing Coordinator test suite (test-coordinator-fast.ps1): 263/263
 passing before and after, no regressions.

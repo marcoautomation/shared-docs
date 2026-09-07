@@ -104,3 +104,8 @@ Setup: compiled(01_hello_world).
    Check: "Compiled cache" = "needs compiling"; Compile enabled; Run selected disabled; mains list = "<needs compiling>".
 2. Do: click Compile.
    Check: Output "--- compiling 01_hello_world ---" ... "--- compile done ---"; mains list repopulates with all 5 mains; Compile enabled again, Run selected enabled.
+
+MOST RECENT FULL RUN
+manager-gui-test-report.txt: run 2026-09-02 against tests 1-8 (predates
+test 9 above), 29/32 steps passed first try, 2 defects found and fixed
+(Coordinator PR #70, merged).

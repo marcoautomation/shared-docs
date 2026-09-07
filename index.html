@@ -12,8 +12,6 @@
     --muted: #6b6459;
     --accent: #a8531e;
     --border: #e6e1d8;
-    --good: #2e7d32;
-    --bad: #a8321e;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -23,8 +21,6 @@
       --muted: #a89f8f;
       --accent: #e08a4f;
       --border: #332d23;
-      --good: #7fc98a;
-      --bad: #e0705f;
     }
   }
   * { box-sizing: border-box; }
@@ -85,19 +81,6 @@
     color: var(--muted);
     font-size: 0.9rem;
   }
-  .badge {
-    display: inline-block;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 0.12rem 0.5rem;
-    border-radius: 999px;
-    margin-left: 0.5rem;
-    vertical-align: middle;
-  }
-  .badge.open { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
-  .badge.fixed { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); }
   footer {
     margin-top: 3rem;
     color: var(--muted);
@@ -108,7 +91,7 @@
 <body>
 <main>
   <h1>Shared documents</h1>
-  <p class="lede">Fearless builds, guides, and write-ups published here for a stable link independent of any single conversation. This index is kept current with what's actually on the site &mdash; last surveyed 2026-09-07.</p>
+  <p class="lede">Fearless builds, guides, and write-ups published here for a stable link independent of any single conversation. Last surveyed 2026-09-08.</p>
 
   <h2>Downloads</h2>
   <ul class="docs">
@@ -126,15 +109,11 @@
     </li>
     <li>
       <a href="./manager-gui-tests.txt">Fearless Manager GUI &mdash; manual test plan</a>
-      <span class="meta">Scripted, step-by-step acceptance tests for the desktop manager's GUI &mdash; file association, the project split view, compile/run &mdash; run by hand since no automated harness in the repo covers GUI behavior. Draft v7, 9 tests.</span>
+      <span class="meta">Scripted, step-by-step GUI acceptance tests for the desktop manager, run by hand. Draft v7, 9 tests.</span>
     </li>
     <li>
-      <a href="./manager-gui-test-report.txt">Fearless Manager GUI &mdash; test report</a>
-      <span class="meta">Results of running tests 1&ndash;8 of the plan above against a real build: 29/32 steps passed first try; 2 defects found, fixed (merged in Coordinator PR&nbsp;#70), and reverified. Run 2026-09-02, predates test 9.</span>
-    </li>
-    <li>
-      <a href="./fearless/eclipse-tests/">Fearless tests in Eclipse's JUnit view</a>
-      <span class="meta">Wires the JUnit-XML-shaped test log StandardLibrary's UnitTests already produces into Eclipse's stock JUnit view, so every individual Fearless-level check shows as its own pass/fail/skip node. Verified against a real portable Eclipse 2026-06; both underlying PRs are merged upstream.</span>
+      <a href="./fearless/setup-cheatsheet.txt">Setup cheatsheet</a>
+      <span class="meta">Short, standalone how-tos for recurring dev-environment tasks. First entry: importing Fearless test results into Eclipse's JUnit view.</span>
     </li>
   </ul>
 
@@ -142,23 +121,15 @@
   <ul class="docs">
     <li>
       <a href="./fearless-slimdown/">Fearless Slimdown &mdash; code-size review</a>
-      <span class="meta">A read-only pass across Frontend, Coordinator, StandardLibrary, and Commons looking for dead code, duplication, and over-abstraction: 14 findings. Its top two (the orphaned guiLibrary/, and rt/Fs.java's duplication) are already fixed upstream &mdash; see the update note on the page. Published 2026-09-01.</span>
+      <span class="meta">Dead code, duplication, and over-abstraction across all four repos: 14 findings, top two already fixed upstream.</span>
     </li>
   </ul>
 
-  <h2>Bug reports &mdash; FearlessLang/StandardLibrary &amp; Commons</h2>
+  <h2>Bug reports</h2>
   <ul class="docs">
     <li>
-      <a href="./bug-reports/metaparser-parseback-index.html">MetaParser.parseBack index arithmetic</a><span class="badge open">open</span>
-      <span class="meta">Commons: parseBack read the caller's absolute limit field where it needed a token-window-relative value, corrupting the parser's cursor. A fix and regression test were proposed (Commons#24, Frontend#36) but closed without merging. Published 2026-09-07.</span>
-    </li>
-    <li>
-      <a href="./bug-reports/nat-range-size.html">Nat range .size</a><span class="badge fixed">fixed</span>
-      <span class="meta">StandardLibrary: an inclusive Nat range's .size computed startInclusive - endInclusive instead of endInclusive - startInclusive + 1, throwing for any multi-element range. Published 2026-09-03, fixed upstream shortly after.</span>
-    </li>
-    <li>
-      <a href="./bug-reports/empty-list-sublist.html">Empty List .subList</a><span class="badge fixed">fixed</span>
-      <span class="meta">StandardLibrary: an empty List's .subList(start,end) guarded with &amp;&amp; instead of ||, so a call with start==0 silently returned {} instead of throwing when end exceeded size. Published 2026-09-04, fixed upstream shortly after.</span>
+      <a href="./bug-reports/">FearlessLang bug reports</a>
+      <span class="meta">3 filed against StandardLibrary/Commons &mdash; 1 open, 2 fixed upstream.</span>
     </li>
   </ul>
 
