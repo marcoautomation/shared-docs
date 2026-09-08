@@ -192,7 +192,7 @@ one of these was meant to start with /// instead.</pre>
     start with <code>//-</code>) is a call for whoever owns each side.
   </p>
 
-  <h3>3. Chapter 17 &ldquo;ImplementingFromScratch&rdquo; &mdash; crashes the compiler; likely a 13th, uncatalogued instance of an already-tracked StandardLibrary bug class</h3>
+  <h3>3. Chapter 17 &ldquo;ImplementingFromScratch&rdquo; &mdash; crashes the compiler; possibly a new, uncatalogued case of an already-tracked StandardLibrary bug class</h3>
   <table>
     <tr><th>Test</th><td><code>ZH_017Chapter03ImplementingFromScratch.var1()</code></td></tr>
     <tr><th>Guide page</th><td><code>assetsGuide/17_01.html</code></td></tr>
@@ -211,21 +211,28 @@ one of these was meant to start with /// instead.</pre>
     overnight before this chapter ran.)
   </p>
   <p>
-    Compiling <code>ZH_017</code>'s <code>var1()</code> (which pulls in <code>base.Block</code>,
-    and so <code>Vars#(x#)</code> from <code>base/blocks.fear</code>, backed by
-    <code>base/var.fear</code>'s <code>Vars:Sealed{#[E:*](var: E): mut Var[E] -&gt;
-    Magic!}</code>) does not produce a type error &mdash; it crashes the compiler outright:
+    <code>var1()</code> does not produce a type error &mdash; it crashes the compiler outright:
   </p>
   <pre>Error: Fearless crashed (this is a bug).
 java.lang.AssertionError: Vars$o$0 is fully replaced by a hand-written rt/ file but still has a real (non-abstract, non-Magic!) method of its own
 	at naiveBackend.MagicConsistency.checkFileReplacement(MagicConsistency.java:37)</pre>
   <p>
-    <code>Vars</code> is not among the 12 named findings above, so this looks like a 13th
-    instance the integration-test suite doesn't happen to exercise, surfaced only because this
-    FearlessTour chapter compiles <code>Vars#</code> in a shape the existing suite doesn't.
-    Flagging it here rather than guessing at a fix in <code>StandardLibrary/rt/Vars$o$0.java</code>
-    or <code>base/var.fear</code> &mdash; that pairing needs the same judgment call the other
-    12 already got.
+    <code>Vars</code> is not among the 12 named findings above. The teaching content itself
+    is exactly why this chapter is called &ldquo;implementing from scratch&rdquo;: it deliberately
+    defines its own top-level <code>Vars: { #[E: imm,mut,read](var: E): mut Var[E] -&gt; {
+    .get -&gt; var; } }</code>, re-implementing (with a real body, not <code>Magic!</code>)
+    the same concept the standard library's own <code>base/var.fear</code> provides as
+    <code>Vars:Sealed{#[E:*](var: E): mut Var[E] -&gt; Magic!}</code>, backed by a hand-written
+    <code>rt/Vars$o$0.java</code>. Across all 90 chapter tests, <code>var1()</code> is the
+    <em>only</em> one that declares its own top-level type literally named <code>Vars</code>.
+    That is circumstantial, not a confirmed root cause &mdash; this write-up did not trace
+    the backend's synthetic-name generation far enough to be certain &mdash; but it is a strong
+    enough correlation to be worth someone checking: does a user type that happens to share a
+    base-library type's name (and its zero-abstract-method, single-factory-method shape) get
+    its generated <code>&lt;Name&gt;$o$0</code> confused with the library's own, unrelated to
+    whatever the other 12 known findings turn out to need? Flagging it rather than guessing at
+    a fix in <code>StandardLibrary/rt/Vars$o$0.java</code> or in <code>naiveBackend</code> &mdash;
+    that call needs more certainty than this investigation reached.
   </p>
 
   <h2>Everything else checks out</h2>
@@ -248,10 +255,11 @@ java.lang.AssertionError: Vars$o$0 is fully replaced by a hand-written rt/ file 
       before some other fix.
     </li>
     <li>
-      Chapters 1&ndash;3's core teaching material (directions, turning, method calls, tanks with
-      captured state, basic promotions/packages/object capabilities &mdash; <code>ZH_002</code>
-      through <code>ZH_021</code>) all pass, and by inspection match the syntax
-      ZeroToHero's own day01&ndash;day03 puzzle levels teach.
+      86 of the 90 chapter tests pass outright &mdash; everything in chapters 1&ndash;3 except
+      the three listed above (directions, turning, method calls, tanks with captured state,
+      basic promotions/packages/object capabilities), plus all of chapter 4. By inspection,
+      the early material matches the syntax ZeroToHero's own day01&ndash;day03 puzzle levels
+      teach.
     </li>
   </ul>
 
